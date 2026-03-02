@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CRM Pro para Freelancers
 
-## Getting Started
+Um CRM simples e prático para freelancers gerirem melhor **tempo, projetos, clientes e receita** em um só lugar.
 
-First, run the development server:
+## Funcionalidades principais
+
+### 1) Gestão de Funil e Leads
+- **Kanban de vendas:** mover leads entre etapas (Contato → Reunião → Proposta Enviada → Contrato Assinado).
+- **Captura de leads:** formulário público para bio/portfólio, com envio direto para o CRM.
+- **Quick notes:** anotações rápidas sobre preferências e contexto de cada cliente.
+
+### 2) Gestão de Projetos
+- **Checklist de entrega automático:** proposta ganha vira tarefas do projeto.
+- **Time tracking (cronômetro):** botão de play para registrar horas por projeto.
+- **Central de arquivos:** organização de briefings, referências e entregáveis por cliente.
+
+### 3) Financeiro e Propostas
+- **Gerador de orçamentos (PDF):** modelos prontos com preenchimento rápido de escopo e valor.
+- **Controle de pagamentos:** status por parcela (Pendente, Pago, Atrasado).
+- **Relatório de receita:** visão mensal do que entrou vs. propostas em aberto.
+
+### 4) Comunicação e Histórico
+- **Log de interações:** histórico de conversas e decisões com clientes.
+- **Integração com agenda:** sincronização de reuniões e prazos com Google Calendar.
+
+## Objetivo do projeto
+
+Dar ao freelancer clareza sobre o funil comercial, execução dos projetos e fluxo financeiro, reduzindo retrabalho e melhorando gestão de tempo.
+
+## Como rodar o projeto
+
+1. Instale as dependências:
+
+```bash
+npm install
+```
+
+2. Rode em ambiente de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Abra no navegador:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Comandos úteis
+- `npm run lint` — valida o código com ESLint.
+- `npm run build` — gera build de produção.
+- `npm run start` — inicia a aplicação em modo produção.
