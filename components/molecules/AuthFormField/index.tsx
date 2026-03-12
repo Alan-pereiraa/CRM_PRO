@@ -7,6 +7,7 @@ import { Eye, EyeOff } from "lucide-react"
 
 interface AuthFormFieldProps {
   label: string
+  labelExtra?: React.ReactNode
   name: string
   placeholder: string
   type?: string
@@ -19,6 +20,7 @@ interface AuthFormFieldProps {
 
 export function AuthFormField({
   label,
+  labelExtra,
   name,
   placeholder,
   type = "text",
@@ -38,9 +40,12 @@ export function AuthFormField({
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-semibold text-[var(--text-primary)]">
-        {label}
-      </Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-semibold text-[var(--text-primary)]">
+          {label}
+        </Label>
+        {labelExtra}
+      </div>
       <div className="relative">
         <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-gray-light)]">
           {icon}
