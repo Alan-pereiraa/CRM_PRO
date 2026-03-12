@@ -58,17 +58,17 @@ export function RegisterForm() {
 
   return (
     <Card className="w-full max-w-[480px] shadow-sm">
-      <div className="p-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+      <div className="p-5 sm:p-8">
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-xl font-bold text-[var(--text-primary)] sm:text-2xl">
             Crie sua conta
           </h1>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-sm text-[var(--text-secondary)] sm:text-base">
             Comece a gerenciar seus clientes de forma profissional hoje mesmo.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4 sm:mt-8 sm:space-y-5">
           <AuthFormField
             label="Nome Completo"
             name="name"
@@ -112,7 +112,7 @@ export function RegisterForm() {
           <Button
             type="submit"
             disabled={loading}
-            className="mt-2 h-12 w-full rounded-xl bg-[var(--button-default)] text-base font-semibold text-white hover:bg-[var(--button-default)]/90"
+            className="mt-2 h-11 w-full rounded-xl bg-[var(--button-default)] text-sm font-semibold text-white hover:bg-[var(--button-default)]/90 sm:h-12 sm:text-base"
           >
             {loading ? "Criando..." : "Criar Conta"}
           </Button>

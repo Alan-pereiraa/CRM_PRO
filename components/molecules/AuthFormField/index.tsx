@@ -56,7 +56,7 @@ export function AuthFormField({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className={`h-12 w-full rounded-xl border-transparent bg-[#F1F5F9] pl-11 text-sm placeholder:text-[var(--text-gray-light)] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 ${showPasswordToggle ? "pr-11" : "pr-4"}`}
+          className={`h-11 w-full rounded-xl border-transparent bg-[#F1F5F9] pl-11 text-sm placeholder:text-[var(--text-gray-light)] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 sm:h-12 ${showPasswordToggle ? "pr-11" : "pr-4"}`}
         />
         {showPasswordToggle && (
           <button
