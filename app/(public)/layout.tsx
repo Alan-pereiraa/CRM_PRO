@@ -1,7 +1,7 @@
-export default function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      {children}
-    </div>
-  )
+import { AuthTemplate } from "@/components/templates/AuthTemplate"
+
+export default function PublicLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return <AuthTemplate>{children}</AuthTemplate>
 }

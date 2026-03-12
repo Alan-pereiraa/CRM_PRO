@@ -1,5 +1,5 @@
-export { accountSchema, loginSchema, registerSchema } from './account'
-export type { LoginInput, RegisterInput } from './account'
+export { accountSchema, loginSchema, registerSchema, registerFormSchema } from './account'
+export type { LoginInput, RegisterInput, RegisterFormInput } from './account'
 export { funnelSchema, createFunnelSchema } from './funnel'
 export type { CreateFunnelInput } from './funnel'
 export { projectSchema, createProjectSchema, updateProjectSchema } from './project'
