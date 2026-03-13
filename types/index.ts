@@ -13,3 +13,4 @@ export type {
   CreateContactInput,
   UpdateContactInput,
 } from './contact'
+export type { StatCard, DashboardOverview } from './dashboard'
