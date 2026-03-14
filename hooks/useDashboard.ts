@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { dashboardService, taskService } from "@/services"
-import { useTaskStore } from "@/stores"
+import { useTaskStore, useAuthStore } from "@/stores"
 import type { DashboardOverview } from "@/types"
 
 export function useDashboard() {
@@ -10,12 +10,17 @@ export function useDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const user = useAuthStore((s) => s.user)
   const tasks = useTaskStore((s) => s.tasks)
 
+  const accountId = user?.id ?? ''
+
   useEffect(() => {
+    if (!accountId) return
+
     async function fetchOverview() {
       try {
-        const overview = await dashboardService.getOverview()
+        const overview = await dashboardService.getOverview(accountId)
         setBaseData(overview)
       } catch (err) {
         const message =
@@ -27,22 +32,31 @@ export function useDashboard() {
     }
 
     fetchOverview()
-  }, [])
+  }, [accountId])
+
+  const accountTasks = useMemo(
+    () => tasks.filter((t) => t.accountId === accountId),
+    [tasks, accountId],
+  )
 
   const data = useMemo<DashboardOverview | null>(() => {
     if (!baseData) return null
     return {
       ...baseData,
       todayTasks: {
-        tasks,
-        pendingCount: tasks.filter((t) => !t.done).length,
+        tasks: accountTasks,
+        pendingCount: accountTasks.filter((t) => t.status !== 'completed').length,
       },
     }
-  }, [baseData, tasks])
+  }, [baseData, accountTasks])
 
   const toggleTask = useCallback(async (id: string) => {
-    await taskService.toggle(id)
-  }, [])
+    const task = tasks.find((t) => t.id === id)
+    if (!task) return
+
+    const newStatus = task.status === 'completed' ? 'pending' : 'completed'
+    await taskService.updateStatus(id, newStatus)
+  }, [tasks])
 
   return { data, loading, error, toggleTask }
 }

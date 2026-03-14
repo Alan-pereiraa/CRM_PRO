@@ -41,15 +41,15 @@ const mockFunnel = {
 }
 
 export const dashboardService = {
-  async getOverview(): Promise<DashboardOverview> {
+  async getOverview(accountId: string): Promise<DashboardOverview> {
     await delay()
-    const tasks = useTaskStore.getState().getToday()
+    const tasks = useTaskStore.getState().getToday(accountId)
     return {
       stats: mockStats,
       funnel: mockFunnel,
       todayTasks: {
         tasks,
-        pendingCount: tasks.filter((t) => !t.done).length,
+        pendingCount: tasks.filter((t) => t.status !== 'completed').length,
       },
     }
   },

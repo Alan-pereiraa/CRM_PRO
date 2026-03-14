@@ -1,5 +1,9 @@
 import type { PublicAccount } from '@/types'
-import { useAuthStore, setCookieToken, createAccountData } from '@/stores'
+import { useAuthStore, setCookieToken, createAccountData, useFunnelStore, useProjectStore } from '@/stores'
+import { funnelService } from '@/services/funnelService'
+import { projectService } from '@/services/projectService'
+import { contactService } from '@/services/contactService'
+import { taskService } from '@/services/taskService'
 import { delay } from '@/lib/utils'
 
 function toPublic(account: { id: string; name: string; email: string; createdAt: string }): PublicAccount {
@@ -25,12 +29,21 @@ export const authService = {
   async register(name: string, email: string, password: string): Promise<PublicAccount> {
     await delay()
     const store = useAuthStore.getState()
+
     const existing = store.findAccountByEmail(email)
     if (existing) {
       throw new Error('Email ja cadastrado')
     }
+
     const newAccount = createAccountData(name, email, password)
     store.addAccount(newAccount)
+
+    funnelService.createDefaultFunnels(newAccount.id)
+    const funnelIds = useFunnelStore.getState().getByAccount(newAccount.id).map((f) => f.id)
+    const projectIds = projectService.createDefaultProjects(funnelIds, newAccount.id)
+    contactService.createDefaultContacts(projectIds)
+    taskService.createDefaultTasks(projectIds, newAccount.id)
+
     const publicAccount = toPublic(newAccount)
     const token = `token-${newAccount.id}`
     store.setUser(publicAccount)

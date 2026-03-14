@@ -1,5 +1,5 @@
 export type { Account, PublicAccount } from './account'
-export type { Funnel } from './funnel'
+export type { Funnel, FunnelWithProjects, FunnelViewMode } from './funnel'
 export type {
   Project,
   ProjectStatus,
@@ -7,7 +7,6 @@ export type {
   CreateProjectInput,
   UpdateProjectInput,
 } from './project'
-export type { Subtask, CreateSubtaskInput } from './subtask'
 export type {
   Contact,
   CreateContactInput,

@@ -37,4 +37,8 @@ export const projectService = {
     await delay()
     useProjectStore.getState().remove(id)
   },
+
+  createDefaultProjects(funnelIds: string[], accountId: string): string[] {
+    return useProjectStore.getState().addDefaults(funnelIds, accountId)
+  },
 }

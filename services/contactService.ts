@@ -22,4 +22,8 @@ export const contactService = {
     await delay()
     useContactStore.getState().remove(id)
   },
+
+  createDefaultContacts(projectIds: string[]): void {
+    useContactStore.getState().addDefaults(projectIds)
+  },
 }

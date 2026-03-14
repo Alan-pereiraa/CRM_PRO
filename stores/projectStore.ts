@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Project, CreateProjectInput, UpdateProjectInput } from '@/types'
-import { mockProjects } from '@/mocks'
+import { defaultProjects } from '@/mocks'
 import { generateId } from '@/lib/utils'
 
 interface ProjectState {
@@ -13,12 +13,13 @@ interface ProjectState {
   update: (id: string, input: UpdateProjectInput) => Project
   move: (id: string, funnelId: string, position: number) => Project
   remove: (id: string) => void
+  addDefaults: (funnelIds: string[], accountId: string) => string[]
 }
 
 export const useProjectStore = create<ProjectState>()(
   persist(
     (set, get) => ({
-      projects: mockProjects,
+      projects: [],
 
       getByAccount: (accountId) =>
         get().projects.filter((p) => p.accountId === accountId),
@@ -75,6 +76,34 @@ export const useProjectStore = create<ProjectState>()(
         set((state) => ({
           projects: state.projects.filter((p) => p.id !== id),
         }))
+      },
+
+      addDefaults: (funnelIds, accountId) => {
+        const now = new Date().toISOString()
+        const positionCounters: Record<string, number> = {}
+
+        const newProjects: Project[] = defaultProjects.map((seed) => {
+          const funnelId = funnelIds[seed.funnelIndex] ?? funnelIds[0]
+          const position = positionCounters[funnelId] ?? 0
+          positionCounters[funnelId] = position + 1
+          return {
+            id: generateId('proj'),
+            title: seed.title,
+            description: seed.description,
+            status: seed.status,
+            priority: seed.priority,
+            value: seed.value,
+            funnelId,
+            accountId,
+            deadline: seed.deadline,
+            position,
+            createdAt: now,
+            updatedAt: now,
+          }
+        })
+
+        set((state) => ({ projects: [...state.projects, ...newProjects] }))
+        return newProjects.map((p) => p.id)
       },
     }),
     {

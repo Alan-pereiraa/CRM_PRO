@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Funnel } from '@/types'
-import { mockFunnels } from '@/mocks'
+import { defaultFunnels } from '@/mocks'
 import { generateId } from '@/lib/utils'
 
 interface FunnelState {
@@ -17,7 +17,7 @@ interface FunnelState {
 export const useFunnelStore = create<FunnelState>()(
   persist(
     (set, get) => ({
-      funnels: mockFunnels,
+      funnels: [],
 
       getByAccount: (accountId) =>
         get()
@@ -62,14 +62,14 @@ export const useFunnelStore = create<FunnelState>()(
       },
 
       addDefaults: (accountId) => {
-        const defaults: Funnel[] = [
-          { id: generateId('funnel'), name: 'Lead', position: 0, color: '#3B82F6', accountId },
-          { id: generateId('funnel'), name: 'Contato', position: 1, color: '#8B5CF6', accountId },
-          { id: generateId('funnel'), name: 'Proposta', position: 2, color: '#F59E0B', accountId },
-          { id: generateId('funnel'), name: 'Negociacao', position: 3, color: '#EF4444', accountId },
-          { id: generateId('funnel'), name: 'Fechado', position: 4, color: '#10B981', accountId },
-        ]
-        set((state) => ({ funnels: [...state.funnels, ...defaults] }))
+        const newFunnels: Funnel[] = defaultFunnels.map((seed) => ({
+          id: generateId('funnel'),
+          name: seed.name,
+          position: seed.position,
+          color: seed.color,
+          accountId,
+        }))
+        set((state) => ({ funnels: [...state.funnels, ...newFunnels] }))
       },
     }),
     {

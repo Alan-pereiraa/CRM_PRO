@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Account, PublicAccount } from '@/types'
-import { mockAccounts } from '@/mocks'
 import { generateId } from '@/lib/utils'
 
 interface AuthState {
@@ -17,7 +16,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      accounts: mockAccounts,
+      accounts: [],
       user: null,
       token: null,
       setUser: (user) => set({ user }),

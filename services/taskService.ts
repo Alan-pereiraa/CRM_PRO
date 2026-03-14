@@ -3,13 +3,17 @@ import { useTaskStore } from '@/stores'
 import { delay } from '@/lib/utils'
 
 export const taskService = {
-  async getToday(): Promise<Task[]> {
+  async getToday(accountId: string): Promise<Task[]> {
     await delay()
-    return useTaskStore.getState().getToday()
+    return useTaskStore.getState().getToday(accountId)
   },
 
-  async toggle(id: string): Promise<Task> {
+  async updateStatus(id: string, status: Task['status']): Promise<Task> {
     await delay()
-    return useTaskStore.getState().toggle(id)
+    return useTaskStore.getState().updateStatus(id, status)
+  },
+
+  createDefaultTasks(projectIds: string[], accountId: string): void {
+    useTaskStore.getState().addDefaults(projectIds, accountId)
   },
 }

@@ -23,10 +23,14 @@ export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low'
 export interface Task {
   id: string
   title: string
-  subtitle: string
-  time: string
-  done: boolean
+  description: string
+  status: 'pending' | 'in_progress' | 'completed'
   priority: TaskPriority
+  dueDate: string
+  projectId: string
+  accountId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface TodayTasks {

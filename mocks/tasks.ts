@@ -1,36 +1,17 @@
-import type { Task } from '@/types'
+import type { TaskPriority } from '@/types'
 
-export const mockTasks: Task[] = [
-  {
-    id: 'task-1',
-    title: 'Enviar proposta para cliente ABC',
-    subtitle: 'Projeto Web — 14:00',
-    time: '14:00',
-    done: false,
-    priority: 'urgent',
-  },
-  {
-    id: 'task-2',
-    title: 'Reunião de alinhamento',
-    subtitle: 'Equipe Design — 15:30',
-    time: '15:30',
-    done: false,
-    priority: 'high',
-  },
-  {
-    id: 'task-3',
-    title: 'Revisar contrato freelancer',
-    subtitle: 'Jurídico — 17:00',
-    time: '17:00',
-    done: true,
-    priority: 'medium',
-  },
-  {
-    id: 'task-4',
-    title: 'Atualizar status do projeto',
-    subtitle: 'CRM Interno — 18:00',
-    time: '18:00',
-    done: false,
-    priority: 'low',
-  },
+export interface TaskSeed {
+  title: string
+  description: string
+  status: 'pending' | 'in_progress' | 'completed'
+  priority: TaskPriority
+  projectIndex: number
+  dueTime: string
+}
+
+export const defaultTasks: TaskSeed[] = [
+  { title: 'Enviar proposta para o cliente', description: 'Preparar e enviar proposta comercial detalhada', status: 'pending', priority: 'urgent', projectIndex: 0, dueTime: '14:00:00Z' },
+  { title: 'Reunião de alinhamento', description: 'Alinhar requisitos e expectativas com o cliente', status: 'pending', priority: 'high', projectIndex: 1, dueTime: '15:30:00Z' },
+  { title: 'Revisar contrato', description: 'Revisar termos e condições do contrato do projeto', status: 'completed', priority: 'medium', projectIndex: 2, dueTime: '17:00:00Z' },
+  { title: 'Atualizar status do projeto', description: 'Atualizar progresso e métricas no painel de controle', status: 'pending', priority: 'low', projectIndex: 3, dueTime: '18:00:00Z' },
 ]

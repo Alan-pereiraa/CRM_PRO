@@ -1,3 +1,5 @@
+import type { Project } from './project'
+
 export interface Funnel {
   id: string
   name: string
@@ -5,3 +7,9 @@ export interface Funnel {
   color: string
   accountId: string
 }
+
+export interface FunnelWithProjects extends Funnel {
+  projects: Project[]
+}
+
+export type FunnelViewMode = 'kanban' | 'list'

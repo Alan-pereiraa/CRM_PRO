@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Contact, CreateContactInput, UpdateContactInput } from '@/types'
-import { mockContacts } from '@/mocks'
+import { defaultContacts } from '@/mocks'
 import { generateId } from '@/lib/utils'
 
 interface ContactState {
@@ -10,12 +10,13 @@ interface ContactState {
   add: (input: CreateContactInput) => Contact
   update: (id: string, input: UpdateContactInput) => Contact
   remove: (id: string) => void
+  addDefaults: (projectIds: string[]) => void
 }
 
 export const useContactStore = create<ContactState>()(
   persist(
     (set, get) => ({
-      contacts: mockContacts,
+      contacts: [],
 
       getByProject: (projectId) =>
         get().contacts.filter((c) => c.projectId === projectId),
@@ -44,6 +45,22 @@ export const useContactStore = create<ContactState>()(
         set((state) => ({
           contacts: state.contacts.filter((c) => c.id !== id),
         }))
+      },
+
+      addDefaults: (projectIds) => {
+        const now = new Date().toISOString()
+
+        const newContacts: Contact[] = defaultContacts.map((seed) => ({
+          id: generateId('contact'),
+          name: seed.name,
+          email: seed.email,
+          phone: seed.phone,
+          role: seed.role,
+          projectId: projectIds[seed.projectIndex] ?? projectIds[0],
+          createdAt: now,
+        }))
+
+        set((state) => ({ contacts: [...state.contacts, ...newContacts] }))
       },
     }),
     {

@@ -18,13 +18,13 @@ function TaskItem({ task, onToggle }: TaskItemProps) {
     <li className="flex items-start gap-3 py-3">
       <Checkbox
         className="mt-0.5"
-        checked={task.done}
+        checked={task.status === 'completed'}
         onCheckedChange={() => onToggle(task.id)}
       />
 
       <div className="min-w-0 flex-1">
         <p
-          className={`text-sm leading-tight ${task.done ? "text-[var(--text-secondary)] line-through" : "font-medium text-[var(--text-primary)]"}`}
+          className={`text-sm leading-tight ${task.status === 'completed' ? "text-[var(--text-secondary)] line-through" : "font-medium text-[var(--text-primary)]"}`}
         >
           {task.title}
         </p>
