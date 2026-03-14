@@ -12,6 +12,7 @@ interface ProjectState {
   add: (input: CreateProjectInput, accountId: string) => Project
   update: (id: string, input: UpdateProjectInput) => Project
   move: (id: string, funnelId: string, position: number) => Project
+  reorderProjects: (updates: Array<{ id: string; funnelId: string; position: number }>) => void
   remove: (id: string) => void
   addDefaults: (funnelIds: string[], accountId: string) => string[]
 }
@@ -70,6 +71,18 @@ export const useProjectStore = create<ProjectState>()(
         if (!moved) throw new Error('Projeto nao encontrado')
         set({ projects })
         return moved
+      },
+
+      reorderProjects: (updates) => {
+        const updateMap = new Map(updates.map((u) => [u.id, u]))
+        const now = new Date().toISOString()
+        set((state) => ({
+          projects: state.projects.map((p) => {
+            const update = updateMap.get(p.id)
+            if (!update) return p
+            return { ...p, funnelId: update.funnelId, position: update.position, updatedAt: now }
+          }),
+        }))
       },
 
       remove: (id) => {

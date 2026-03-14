@@ -27,3 +27,22 @@ export function generateId(prefix: string): string {
 export function delay(ms: number = 50): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
+export function formatRelativeTime(dateString: string): string {
+  const now = Date.now()
+  const past = new Date(dateString).getTime()
+  const diffMs = now - past
+
+  const minutes = Math.floor(diffMs / 60_000)
+  if (minutes < 1) return "agora"
+  if (minutes < 60) return `${minutes} min atras`
+
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} ${hours === 1 ? "hora" : "horas"} atras`
+
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} ${days === 1 ? "dia" : "dias"} atras`
+
+  const months = Math.floor(days / 30)
+  return `${months} ${months === 1 ? "mes" : "meses"} atras`
+}

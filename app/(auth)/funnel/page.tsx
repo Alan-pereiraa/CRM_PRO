@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { FunnelPageHeader } from "@/components/molecules/FunnelPageHeader"
 import { FunnelListView } from "@/components/organisms/FunnelListView"
+import { FunnelKanbanView } from "@/components/organisms/FunnelKanbanView"
 import { ProjectFormDrawer } from "@/components/organisms/ProjectFormDrawer"
 import { useFunnels } from "@/hooks/useFunnels"
 import type { FunnelViewMode } from "@/types"
@@ -20,6 +21,7 @@ export default function FunnelPage() {
         onNewProject={() => setDrawerOpen(true)}
       />
 
+      {view === "kanban" && <FunnelKanbanView funnels={funnels} />}
       {view === "list" && <FunnelListView funnels={funnels} />}
 
       <ProjectFormDrawer

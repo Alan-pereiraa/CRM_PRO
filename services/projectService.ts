@@ -33,6 +33,11 @@ export const projectService = {
     return useProjectStore.getState().move(id, funnelId, position)
   },
 
+  async reorderProjects(updates: Array<{ id: string; funnelId: string; position: number }>): Promise<void> {
+    await delay()
+    useProjectStore.getState().reorderProjects(updates)
+  },
+
   async delete(id: string): Promise<void> {
     await delay()
     useProjectStore.getState().remove(id)
