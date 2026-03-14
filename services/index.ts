@@ -1,6 +1,6 @@
 export { authService } from './authService'
 export { funnelService } from './funnelService'
 export { projectService } from './projectService'
-export { subtaskService } from './subtaskService'
 export { contactService } from './contactService'
 export { dashboardService } from './dashboardService'
+export { taskService } from './taskService'

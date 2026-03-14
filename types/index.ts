@@ -13,4 +13,12 @@ export type {
   CreateContactInput,
   UpdateContactInput,
 } from './contact'
-export type { StatCard, DashboardOverview } from './dashboard'
+export type {
+  StatCard,
+  FunnelStage,
+  FunnelData,
+  Task,
+  TaskPriority,
+  TodayTasks,
+  DashboardOverview,
+} from './dashboard'

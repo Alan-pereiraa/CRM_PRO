@@ -1,5 +1,5 @@
 export { useAuthStore, setCookieToken, createAccountData } from './authStore'
 export { useFunnelStore } from './funnelStore'
 export { useProjectStore } from './projectStore'
-export { useSubtaskStore } from './subtaskStore'
 export { useContactStore } from './contactStore'
+export { useTaskStore } from './taskStore'

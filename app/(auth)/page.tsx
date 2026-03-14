@@ -1,13 +1,19 @@
 "use client"
 
 import { StatCard } from "@/components/molecules/StatCard"
+import { DashboardSkeleton } from "@/components/molecules/DashboardSkeleton"
+import { FunnelChart } from "@/components/organisms/FunnelChart"
+import { TodayTasks } from "@/components/organisms/TodayTasks"
 import { useDashboard } from "@/hooks/useDashboard"
 
 export default function DashboardPage() {
-  const { data, loading } = useDashboard()
+  const { data, loading, toggleTask } = useDashboard()
+
+  if (loading) return <DashboardSkeleton />
+  if (!data) return null
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="flex flex-1 flex-col p-6 lg:p-8">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
@@ -20,16 +26,18 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {loading
-          ? Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-[140px] animate-pulse rounded-2xl bg-[#F1F5F9]"
-              />
-            ))
-          : data?.stats.map((stat) => (
-              <StatCard key={stat.id} stat={stat} />
-            ))}
+        {data.stats.map((stat) => (
+          <StatCard key={stat.id} stat={stat} />
+        ))}
+      </div>
+
+      <div className="mt-4 grid flex-1 grid-cols-1 gap-4 lg:mt-6 lg:grid-cols-3">
+        <div className="min-h-[360px] lg:col-span-2">
+          <FunnelChart data={data.funnel} />
+        </div>
+        <div className="min-h-[360px] lg:col-span-1">
+          <TodayTasks data={data.todayTasks} onToggle={toggleTask} />
+        </div>
       </div>
     </div>
   )
