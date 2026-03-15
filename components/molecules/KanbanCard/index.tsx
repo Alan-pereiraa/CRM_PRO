@@ -19,9 +19,10 @@ const PRIORITY_CONFIG: Record<ProjectPriority, { label: string; className: strin
 interface KanbanCardProps {
   project: Project
   isOverlay?: boolean
+  onEdit?: (project: Project) => void
 }
 
-export function KanbanCard({ project, isOverlay }: KanbanCardProps) {
+export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
   const {
     attributes,
     listeners,
@@ -72,6 +73,7 @@ export function KanbanCard({ project, isOverlay }: KanbanCardProps) {
           size="icon"
           className="h-6 w-6 text-gray-400 hover:text-gray-600"
           onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => onEdit?.(project)}
         >
           <MoreVertical size={14} />
         </Button>

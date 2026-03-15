@@ -4,13 +4,14 @@ import { ChevronDown, ChevronRight } from "lucide-react"
 import { useState } from "react"
 import { ProjectListItem } from "@/components/molecules/ProjectListItem"
 import { formatCurrency } from "@/lib/utils"
-import type { FunnelWithProjects } from "@/types"
+import type { FunnelWithProjects, Project } from "@/types"
 
 interface FunnelListGroupProps {
   funnel: FunnelWithProjects
+  onEditProject?: (project: Project) => void
 }
 
-export function FunnelListGroup({ funnel }: FunnelListGroupProps) {
+export function FunnelListGroup({ funnel, onEditProject }: FunnelListGroupProps) {
   const [expanded, setExpanded] = useState(true)
   const totalValue = funnel.projects.reduce((sum, p) => sum + p.value, 0)
 
@@ -44,7 +45,7 @@ export function FunnelListGroup({ funnel }: FunnelListGroupProps) {
         <div className="mt-1 flex flex-col gap-2 pl-2">
           {funnel.projects.length > 0 ? (
             funnel.projects.map((project) => (
-              <ProjectListItem key={project.id} project={project} />
+              <ProjectListItem key={project.id} project={project} onEdit={onEditProject} />
             ))
           ) : (
             <p className="px-4 py-3 text-center text-xs text-[var(--text-gray-light)]">

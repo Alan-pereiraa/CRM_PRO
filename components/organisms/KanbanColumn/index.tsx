@@ -10,9 +10,10 @@ import type { FunnelWithProjects, Project } from "@/types"
 interface KanbanColumnProps {
   funnel: FunnelWithProjects
   projects: Project[]
+  onEditProject?: (project: Project) => void
 }
 
-export function KanbanColumn({ funnel, projects }: KanbanColumnProps) {
+export function KanbanColumn({ funnel, projects, onEditProject }: KanbanColumnProps) {
   const { setNodeRef } = useDroppable({ id: funnel.id })
 
   const totalValue = projects.reduce((sum, p) => sum + p.value, 0)
@@ -43,7 +44,7 @@ export function KanbanColumn({ funnel, projects }: KanbanColumnProps) {
       >
         <SortableContext items={projectIds} strategy={verticalListSortingStrategy}>
           {projects.map((project) => (
-            <KanbanCard key={project.id} project={project} />
+            <KanbanCard key={project.id} project={project} onEdit={onEditProject} />
           ))}
         </SortableContext>
 

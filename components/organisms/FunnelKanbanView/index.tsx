@@ -4,13 +4,14 @@ import { DndContext, DragOverlay } from "@dnd-kit/core"
 import { KanbanColumn } from "@/components/organisms/KanbanColumn"
 import { KanbanCard } from "@/components/molecules/KanbanCard"
 import { useKanban } from "@/hooks/useKanban"
-import type { FunnelWithProjects } from "@/types"
+import type { FunnelWithProjects, Project } from "@/types"
 
 interface FunnelKanbanViewProps {
   funnels: FunnelWithProjects[]
+  onEditProject?: (project: Project) => void
 }
 
-export function FunnelKanbanView({ funnels }: FunnelKanbanViewProps) {
+export function FunnelKanbanView({ funnels, onEditProject }: FunnelKanbanViewProps) {
   const {
     columns,
     activeProject,
@@ -23,7 +24,7 @@ export function FunnelKanbanView({ funnels }: FunnelKanbanViewProps) {
   } = useKanban(funnels)
 
   return (
-    <div className="mt-6 flex min-h-0 flex-1 gap-4 overflow-x-auto pb-4">
+    <div className="scrollbar-thin mt-6 flex min-h-0 flex-1 gap-4 overflow-x-auto pb-4">
       <DndContext
         sensors={sensors}
         collisionDetection={collisionDetection}
@@ -37,6 +38,7 @@ export function FunnelKanbanView({ funnels }: FunnelKanbanViewProps) {
             key={funnel.id}
             funnel={funnel}
             projects={columns[funnel.id] ?? []}
+            onEditProject={onEditProject}
           />
         ))}
 

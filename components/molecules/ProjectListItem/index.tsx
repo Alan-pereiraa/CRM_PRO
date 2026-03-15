@@ -1,12 +1,14 @@
 "use client"
 
-import { Calendar } from "lucide-react"
+import { Calendar, MoreVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import type { Project, ProjectPriority } from "@/types"
 
 interface ProjectListItemProps {
   project: Project
+  onEdit?: (project: Project) => void
 }
 
 const PRIORITY_CONFIG: Record<ProjectPriority, { label: string; className: string }> = {
@@ -16,7 +18,7 @@ const PRIORITY_CONFIG: Record<ProjectPriority, { label: string; className: strin
   urgent: { label: "Urgente", className: "bg-red-100 text-red-700" },
 }
 
-export function ProjectListItem({ project }: ProjectListItemProps) {
+export function ProjectListItem({ project, onEdit }: ProjectListItemProps) {
   const priority = PRIORITY_CONFIG[project.priority]
 
   return (
@@ -44,6 +46,14 @@ export function ProjectListItem({ project }: ProjectListItemProps) {
         <Badge className={`${priority.className} min-w-20`}>
           {priority.label}
         </Badge>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-gray-400 hover:text-gray-600"
+          onClick={() => onEdit?.(project)}
+        >
+          <MoreVertical size={14} />
+        </Button>
       </div>
     </div>
   )
