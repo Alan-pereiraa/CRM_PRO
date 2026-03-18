@@ -51,7 +51,7 @@ export function TasksTableFilter({
           placeholder="Buscar tarefas..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="bg-[#F1F5F9] pl-9 border-none"
+          className="bg-[#F1F5F9] dark:bg-accent pl-9 border-none"
         />
       </div>
 

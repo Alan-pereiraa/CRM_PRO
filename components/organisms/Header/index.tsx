@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/atoms/Logo"
+import { ThemeToggle } from "@/components/atoms/ThemeToggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Sheet,
@@ -56,7 +57,7 @@ export function Header() {
   return (
     <>
       {/* Desktop header */}
-      <header className="hidden border-b bg-white lg:block">
+      <header className="hidden border-b bg-white dark:bg-card lg:block">
         <div className="flex h-14 items-center gap-6 px-5">
           <Logo />
 
@@ -84,9 +85,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--text-secondary)] transition-colors hover:bg-[#F1F5F9] hover:text-[var(--text-primary)]">
-              <Settings size={18} />
-            </button>
+            <ThemeToggle />
             <Avatar size="default">
               <AvatarFallback className="bg-[var(--background-graphic)] text-xs text-white">
                 {userInitials}
@@ -96,9 +95,9 @@ export function Header() {
         </div>
       </header>
 
-      <header className="flex h-14 items-center justify-between border-b bg-white px-4 lg:hidden">
+      <header className="flex h-14 items-center justify-between border-b bg-white dark:bg-card px-4 lg:hidden">
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetTrigger className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[#F1F5F9] hover:text-[var(--text-primary)]">
+          <SheetTrigger className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[#F1F5F9] dark:hover:bg-accent hover:text-[var(--text-primary)]">
             <Menu size={20} />
           </SheetTrigger>
 
@@ -118,8 +117,8 @@ export function Header() {
                     onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       active
-                        ? "bg-[#F1F5F9] text-[var(--text-primary)]"
-                        : "text-[var(--text-secondary)] hover:bg-[#F1F5F9] hover:text-[var(--text-primary)]"
+                        ? "bg-[#F1F5F9] dark:bg-accent text-[var(--text-primary)]"
+                        : "text-[var(--text-secondary)] hover:bg-[#F1F5F9] dark:hover:bg-accent hover:text-[var(--text-primary)]"
                     }`}
                   >
                     {item.icon}
@@ -130,7 +129,7 @@ export function Header() {
             </nav>
 
             <div className="mt-auto border-t px-3 py-3">
-              <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[#F1F5F9] hover:text-[var(--text-primary)]">
+              <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[#F1F5F9] dark:hover:bg-accent hover:text-[var(--text-primary)]">
                 <Settings size={16} />
                 Configurações
               </button>
@@ -140,11 +139,14 @@ export function Header() {
 
         <Logo />
 
-        <Avatar size="default">
-          <AvatarFallback className="bg-[var(--background-graphic)] text-xs text-white">
-            {userInitials}
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Avatar size="default">
+            <AvatarFallback className="bg-[var(--background-graphic)] text-xs text-white">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
+        </div>
       </header>
     </>
   )

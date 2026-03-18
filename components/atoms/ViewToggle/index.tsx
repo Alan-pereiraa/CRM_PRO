@@ -9,12 +9,12 @@ interface ViewToggleProps {
 }
 
 export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
-  const activeStyles = "bg-[#F1F5F9] text-[var(--text-primary)]"
+  const activeStyles = "bg-[#F1F5F9] dark:bg-accent text-[var(--text-primary)]"
   const inactiveStyles =
     "text-[var(--text-gray-light)] hover:text-[var(--text-secondary)]"
 
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-white p-1">
+    <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-white dark:bg-card p-1">
       <button
         onClick={() => onViewChange("kanban")}
         className={`flex h-7 w-8 items-center justify-center rounded-md transition-colors ${

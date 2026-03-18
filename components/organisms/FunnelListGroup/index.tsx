@@ -19,7 +19,7 @@ export function FunnelListGroup({ funnel, onEditProject }: FunnelListGroupProps)
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-[#F8FAFC]"
+        className="flex w-full items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-[#F8FAFC] dark:hover:bg-muted"
       >
         <span
           className="h-3 w-3 shrink-0 rounded-full"
@@ -28,7 +28,7 @@ export function FunnelListGroup({ funnel, onEditProject }: FunnelListGroupProps)
         <span className="text-sm font-semibold text-[var(--text-primary)]">
           {funnel.name}
         </span>
-        <span className="rounded-md bg-[#F1F5F9] px-1.5 py-0.5 text-xs font-medium text-[var(--text-secondary)]">
+        <span className="rounded-md bg-[#F1F5F9] dark:bg-accent px-1.5 py-0.5 text-xs font-medium text-[var(--text-secondary)]">
           {funnel.projects.length}
         </span>
         <span className="ml-auto text-xs text-[var(--text-secondary)]">

@@ -20,7 +20,7 @@ export function KanbanColumn({ funnel, projects, onEditProject }: KanbanColumnPr
   const projectIds = projects.map((p) => p.id)
 
   return (
-    <div className="flex w-80 min-w-80 flex-col overflow-hidden rounded-lg bg-[#F5F5F5]">
+    <div className="flex w-80 min-w-80 flex-col overflow-hidden rounded-lg bg-[#F5F5F5] dark:bg-background">
       <div
         className="rounded-t-lg border-t-[3px] px-4 pt-3 pb-2"
         style={{ borderTopColor: funnel.color }}
@@ -49,7 +49,7 @@ export function KanbanColumn({ funnel, projects, onEditProject }: KanbanColumnPr
         </SortableContext>
 
         {projects.length === 0 && (
-          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 text-xs text-[var(--text-secondary)]">
+          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-border text-xs text-[var(--text-secondary)]">
             Nenhum projeto
           </div>
         )}

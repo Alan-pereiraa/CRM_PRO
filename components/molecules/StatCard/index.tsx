@@ -21,7 +21,7 @@ export function StatCard({ stat }: StatCardProps) {
   const isUp = stat.trendDirection === "up"
 
   return (
-    <div className="rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] p-5">
+    <div className="rounded-2xl border border-[#F1F5F9] dark:border-border bg-[#F8FAFC] dark:bg-muted p-5">
       <div className="flex items-start justify-between">
         <span className="text-sm font-medium text-[var(--text-secondary)]">
           {stat.title}

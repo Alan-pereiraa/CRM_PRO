@@ -35,17 +35,17 @@ function TaskItem({ task, onToggle }: TaskItemProps) {
 
 export function TodayTasks({ data, onToggle }: TodayTasksProps) {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] p-5">
+    <div className="flex h-full flex-col rounded-2xl border border-[#F1F5F9] dark:border-border bg-[#F8FAFC] dark:bg-muted p-5">
       <div className="flex items-start justify-between">
         <h2 className="text-base font-semibold text-[var(--text-primary)]">
           Afazeres de Hoje
         </h2>
-        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-600">
+        <span className="rounded-full bg-amber-50 dark:bg-amber-900 px-2.5 py-1 text-xs font-medium text-amber-600 dark:text-amber-300">
           {data.pendingCount} PENDENTES
         </span>
       </div>
 
-      <ul className="mt-2 flex-1 divide-y divide-[#F1F5F9]">
+      <ul className="mt-2 flex-1 divide-y divide-[#F1F5F9] dark:divide-border">
         {data.tasks.map((task) => (
           <TaskItem key={task.id} task={task} onToggle={onToggle} />
         ))}
@@ -53,7 +53,7 @@ export function TodayTasks({ data, onToggle }: TodayTasksProps) {
 
       <button
         type="button"
-        className="mt-4 w-full rounded-lg border border-[#E2E8F0] py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[#F1F5F9]"
+        className="mt-4 w-full rounded-lg border border-[#E2E8F0] dark:border-border py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[#F1F5F9] dark:hover:bg-accent"
       >
         Ver Todas as Tarefas
       </button>

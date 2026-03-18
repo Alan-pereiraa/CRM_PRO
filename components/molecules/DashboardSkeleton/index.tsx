@@ -1,10 +1,10 @@
-const S = "animate-pulse rounded-2xl bg-[#F1F5F9]"
+const S = "animate-pulse rounded-2xl bg-[#F1F5F9] dark:bg-accent"
 
 export function DashboardSkeleton() {
   return (
     <div className="p-6 lg:p-8">
-      <div className="h-6 w-40 animate-pulse rounded bg-[#F1F5F9]" />
-      <div className="mt-2 h-4 w-64 animate-pulse rounded bg-[#F1F5F9]" />
+      <div className="h-6 w-40 animate-pulse rounded bg-[#F1F5F9] dark:bg-accent" />
+      <div className="mt-2 h-4 w-64 animate-pulse rounded bg-[#F1F5F9] dark:bg-accent" />
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (

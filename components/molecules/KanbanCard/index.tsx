@@ -11,10 +11,10 @@ import { formatCurrency, formatRelativeTime, cn } from "@/lib/utils"
 import type { Project, ProjectPriority } from "@/types"
 
 const PRIORITY_CONFIG: Record<ProjectPriority, { label: string; className: string }> = {
-  low: { label: "Baixa", className: "bg-slate-100 text-slate-600" },
-  medium: { label: "Média", className: "bg-blue-100 text-blue-700" },
-  high: { label: "Alta", className: "bg-amber-100 text-amber-700" },
-  urgent: { label: "Urgente", className: "bg-red-100 text-red-700" },
+  low: { label: "Baixa", className: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300" },
+  medium: { label: "Média", className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
+  high: { label: "Alta", className: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" },
+  urgent: { label: "Urgente", className: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" },
 }
 
 interface KanbanCardProps {
@@ -52,7 +52,7 @@ export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
       <div
         ref={setNodeRef}
         style={style}
-        className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 opacity-50 p-4 h-[140px]"
+        className="rounded-lg border-2 border-dashed border-gray-300 dark:border-border bg-gray-50 dark:bg-muted opacity-50 p-4 h-[140px]"
       />
     )
   }
@@ -65,7 +65,7 @@ export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
       {...listeners}
       onClick={() => router.push(`/project/${project.id}`)}
       className={cn(
-        "cursor-grab rounded-lg border bg-white p-4 transition-shadow hover:shadow-md",
+        "cursor-grab rounded-lg border bg-white dark:bg-card p-4 transition-shadow hover:shadow-md",
         isOverlay && "shadow-xl rotate-[2deg]",
       )}
     >
@@ -74,7 +74,7 @@ export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-gray-400 hover:text-gray-600"
+          className="h-6 w-6 text-gray-400 dark:text-muted-foreground hover:text-gray-600 dark:hover:text-foreground"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); onEdit?.(project) }}
         >
@@ -96,7 +96,7 @@ export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
           {formatRelativeTime(project.updatedAt)}
         </span>
         <Avatar className="h-6 w-6">
-          <AvatarFallback className="text-[10px] bg-gray-200 text-gray-600">
+          <AvatarFallback className="text-[10px] bg-gray-200 dark:bg-muted text-gray-600 dark:text-foreground">
             {initials}
           </AvatarFallback>
         </Avatar>

@@ -13,10 +13,10 @@ interface ProjectListItemProps {
 }
 
 const PRIORITY_CONFIG: Record<ProjectPriority, { label: string; className: string }> = {
-  low: { label: "Baixa", className: "bg-slate-100 text-slate-600" },
-  medium: { label: "Média", className: "bg-blue-100 text-blue-700" },
-  high: { label: "Alta", className: "bg-amber-100 text-amber-700" },
-  urgent: { label: "Urgente", className: "bg-red-100 text-red-700" },
+  low: { label: "Baixa", className: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300" },
+  medium: { label: "Média", className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
+  high: { label: "Alta", className: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" },
+  urgent: { label: "Urgente", className: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" },
 }
 
 export function ProjectListItem({ project, onEdit }: ProjectListItemProps) {
@@ -26,7 +26,7 @@ export function ProjectListItem({ project, onEdit }: ProjectListItemProps) {
   return (
     <div
       onClick={() => router.push(`/project/${project.id}`)}
-      className="cursor-pointer flex items-center justify-between gap-4 rounded-lg border bg-white px-4 py-3 transition-colors hover:bg-[#FAFBFC]"
+      className="cursor-pointer flex items-center justify-between gap-4 rounded-lg border bg-white dark:bg-card px-4 py-3 transition-colors hover:bg-[#FAFBFC] dark:hover:bg-muted"
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-[var(--text-primary)]">
@@ -54,7 +54,7 @@ export function ProjectListItem({ project, onEdit }: ProjectListItemProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-gray-400 hover:text-gray-600"
+          className="h-7 w-7 text-gray-400 dark:text-muted-foreground hover:text-gray-600 dark:hover:text-foreground"
           onClick={(e) => { e.stopPropagation(); onEdit?.(project) }}
         >
           <MoreVertical size={14} />

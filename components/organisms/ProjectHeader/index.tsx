@@ -74,8 +74,8 @@ export function ProjectHeader({ project, stats, onCreateTask, onDelete }: Projec
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] p-4 md:grid-cols-3">
-        <div className="rounded-xl bg-white p-5">
+      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-[#F1F5F9] dark:border-border bg-[#F8FAFC] dark:bg-muted p-4 md:grid-cols-3">
+        <div className="rounded-xl bg-white dark:bg-card p-5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold tracking-wide text-[var(--text-secondary)] uppercase">
               Progresso Geral
@@ -91,7 +91,7 @@ export function ProjectHeader({ project, stats, onCreateTask, onDelete }: Projec
           </div>
         </div>
 
-        <div className="rounded-xl bg-white p-5">
+        <div className="rounded-xl bg-white dark:bg-card p-5">
           <span className="text-xs font-bold tracking-wide text-[var(--text-secondary)] uppercase">
             Tarefas Ativas
           </span>
@@ -113,7 +113,7 @@ export function ProjectHeader({ project, stats, onCreateTask, onDelete }: Projec
           </p>
         </div>
 
-        <div className="rounded-xl bg-white p-5">
+        <div className="rounded-xl bg-white dark:bg-card p-5">
           <span className="text-xs font-bold tracking-wide text-[var(--text-secondary)] uppercase">
             Tempo Rastreado
           </span>

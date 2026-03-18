@@ -6,7 +6,7 @@ interface AuthTemplateProps {
 
 export function AuthTemplate({ children }: AuthTemplateProps) {
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-[#F6F7F7]">
+    <div className="flex min-h-[100dvh] flex-col bg-[#F6F7F7] dark:bg-background">
       <div className="px-5 pt-5 sm:px-6 sm:pt-6">
         <Logo />
       </div>

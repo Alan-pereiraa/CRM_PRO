@@ -12,10 +12,10 @@ const STATUS_CONFIG: Record<TaskStatus, { label: string; color: string }> = {
 }
 
 const PRIORITY_CONFIG: Record<TaskPriority, { label: string; className: string }> = {
-  low: { label: 'Baixa', className: 'bg-slate-100 text-slate-600' },
-  medium: { label: 'Média', className: 'bg-blue-100 text-blue-700' },
-  high: { label: 'Alta', className: 'bg-amber-100 text-amber-700' },
-  urgent: { label: 'Urgente', className: 'bg-red-100 text-red-700' },
+  low: { label: 'Baixa', className: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' },
+  medium: { label: 'Média', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' },
+  high: { label: 'Alta', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' },
+  urgent: { label: 'Urgente', className: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' },
 }
 
 interface TasksTableProps {
@@ -41,7 +41,7 @@ export function TasksTable({
     <div className="overflow-x-auto rounded-lg border">
       <table className="w-full">
         <thead>
-          <tr className="border-b bg-[#F8FAFC]">
+          <tr className="border-b bg-[#F8FAFC] dark:bg-muted">
             <th className="w-12 px-4 py-3" />
             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)]">
               Nome da Tarefa
@@ -65,7 +65,7 @@ export function TasksTable({
             return (
               <tr
                 key={task.id}
-                className="border-b hover:bg-[#FAFBFC] cursor-pointer"
+                className="border-b hover:bg-[#FAFBFC] dark:hover:bg-muted cursor-pointer"
                 onClick={() => onTaskClick?.(task)}
               >
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
