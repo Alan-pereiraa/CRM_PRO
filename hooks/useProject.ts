@@ -1,21 +1,91 @@
-"use client"
+'use client'
 
-import { useState, useCallback } from "react"
-import { createProjectSchema } from "@/schemas"
-import { projectService } from "@/services"
-import { useAuth } from "@/hooks/useAuth"
-import type { CreateProjectInput, Project } from "@/types"
+import { useState, useMemo, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { createProjectSchema } from '@/schemas'
+import { projectService } from '@/services'
+import { useAuth } from '@/hooks/useAuth'
+import { useProjectStore, useTaskStore } from '@/stores'
+import type { Project, Task, CreateProjectInput } from '@/types'
+
+export interface ProjectStats {
+  progress: number
+  activeTasks: number
+  totalTasks: number
+  tasksDueThisWeek: number
+  trackedTimeMinutes: number
+}
+
+interface UseProjectReturn {
+  project: Project | null
+  tasks: Task[]
+  stats: ProjectStats
+  loading: boolean
+  deleteProject: () => Promise<void>
+}
+
+const EMPTY_STATS: ProjectStats = {
+  progress: 0,
+  activeTasks: 0,
+  totalTasks: 0,
+  tasksDueThisWeek: 0,
+  trackedTimeMinutes: 0,
+}
 
 type FieldErrors = Partial<Record<keyof CreateProjectInput, string>>
 
 const INITIAL_VALUES: CreateProjectInput = {
-  title: "",
-  description: "",
-  status: "active",
-  priority: "medium",
+  title: '',
+  description: '',
+  status: 'active',
+  priority: 'medium',
   value: 0,
-  funnelId: "",
-  deadline: "",
+  funnelId: '',
+  deadline: '',
+}
+
+export function useProject(projectId: string): UseProjectReturn {
+  const allProjects = useProjectStore((s) => s.projects)
+  const allTasks = useTaskStore((s) => s.tasks)
+  const project = useMemo(() => allProjects.find((p) => p.id === projectId) ?? null, [allProjects, projectId])
+  const tasks = useMemo(() => allTasks.filter((t) => t.projectId === projectId), [allTasks, projectId])
+  const loading = false
+  const router = useRouter()
+
+  const stats: ProjectStats = useMemo(() => {
+    if (tasks.length === 0) return EMPTY_STATS
+
+    const completed = tasks.filter((t) => t.status === 'completed').length
+    const activeTasks = tasks.length - completed
+    const progress = Math.round((completed / tasks.length) * 100)
+
+    const now = new Date()
+    const endOfWeek = new Date(now)
+    endOfWeek.setDate(now.getDate() + (7 - now.getDay()))
+
+    const tasksDueThisWeek = tasks.filter((t) => {
+      if (t.status === 'completed') return false
+      const due = new Date(t.dueDate)
+      return due <= endOfWeek
+    }).length
+
+    const trackedTimeMinutes = tasks.reduce((total, task) => {
+      const start = new Date(task.createdAt).getTime()
+      const end = task.completedAt
+        ? new Date(task.completedAt).getTime()
+        : Date.now()
+      return total + Math.max(0, (end - start) / 60_000)
+    }, 0)
+
+    return { progress, activeTasks, totalTasks: tasks.length, tasksDueThisWeek, trackedTimeMinutes }
+  }, [tasks])
+
+  const deleteProject = useCallback(async () => {
+    await projectService.delete(projectId)
+    router.push('/funnel')
+  }, [projectId, router])
+
+  return { project, tasks, stats, loading, deleteProject }
 }
 
 export function useProjectForm(onSuccess?: (project: Project) => void) {

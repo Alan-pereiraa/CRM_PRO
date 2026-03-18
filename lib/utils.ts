@@ -46,3 +46,18 @@ export function formatRelativeTime(dateString: string): string {
   const months = Math.floor(days / 30)
   return `${months} ${months === 1 ? "mes" : "meses"} atras`
 }
+
+export function formatTrackedTime(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = Math.round(totalMinutes % 60)
+  if (hours === 0) return `${minutes}m`
+  return `${hours}h ${minutes}m`
+}
+
+export function formatDateLong(dateString: string): string {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(dateString))
+}

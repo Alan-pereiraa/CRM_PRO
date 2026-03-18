@@ -31,9 +31,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Painel", href: "/", icon: <LayoutGrid size={16} /> },
-  { label: "Projetos", href: "/project", icon: <FolderOpen size={16} /> },
   { label: "Funil", href: "/funnel", icon: <Filter size={16} /> },
-  { label: "Calendário", href: "/calendar", icon: <CalendarDays size={16} /> },
 ]
 
 export function Header() {
@@ -61,17 +59,6 @@ export function Header() {
       <header className="hidden border-b bg-white lg:block">
         <div className="flex h-14 items-center gap-6 px-5">
           <Logo />
-
-          <div className="relative w-56">
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-gray-light)]"
-            />
-            <Input
-              placeholder="Buscar leads, contatos..."
-              className="h-9 rounded-lg border-transparent bg-[#F1F5F9] pl-9 text-sm placeholder:text-[var(--text-gray-light)] focus-visible:border-ring"
-            />
-          </div>
 
           <nav className="flex h-14 flex-1 items-center justify-center gap-1">
             {navItems.map((item) => {
@@ -109,7 +96,6 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile/Tablet top bar + sidebar */}
       <header className="flex h-14 items-center justify-between border-b bg-white px-4 lg:hidden">
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[#F1F5F9] hover:text-[var(--text-primary)]">
@@ -120,19 +106,6 @@ export function Header() {
             <div className="flex h-14 items-center border-b px-5">
               <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
               <Logo />
-            </div>
-
-            <div className="px-4 pt-4">
-              <div className="relative">
-                <Search
-                  size={16}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-gray-light)]"
-                />
-                <Input
-                  placeholder="Buscar leads, contatos..."
-                  className="h-9 rounded-lg border-transparent bg-[#F1F5F9] pl-9 text-sm placeholder:text-[var(--text-gray-light)] focus-visible:border-ring"
-                />
-              </div>
             </div>
 
             <nav className="flex flex-col gap-1 px-3 pt-4">

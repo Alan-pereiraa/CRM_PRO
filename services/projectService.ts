@@ -1,8 +1,22 @@
-import type { Project, CreateProjectInput, UpdateProjectInput } from '@/types'
+import type { Project, Task, CreateProjectInput, UpdateProjectInput } from '@/types'
 import { useProjectStore } from '@/stores'
+import { useTaskStore } from '@/stores'
 import { delay } from '@/lib/utils'
 
+export interface ProjectDetail {
+  project: Project
+  tasks: Task[]
+}
+
 export const projectService = {
+  async getWithTasks(id: string): Promise<ProjectDetail | undefined> {
+    await delay()
+    const project = useProjectStore.getState().getById(id)
+    if (!project) return undefined
+    const tasks = useTaskStore.getState().getByProject(id)
+    return { project, tasks }
+  },
+
   async getAll(accountId: string): Promise<Project[]> {
     await delay()
     return useProjectStore.getState().getByAccount(accountId)

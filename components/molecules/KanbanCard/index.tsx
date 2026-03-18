@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { useRouter } from "next/navigation"
 import { Clock, MoreVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -23,6 +24,7 @@ interface KanbanCardProps {
 }
 
 export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
+  const router = useRouter()
   const {
     attributes,
     listeners,
@@ -61,6 +63,7 @@ export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={() => router.push(`/project/${project.id}`)}
       className={cn(
         "cursor-grab rounded-lg border bg-white p-4 transition-shadow hover:shadow-md",
         isOverlay && "shadow-xl rotate-[2deg]",
@@ -73,7 +76,7 @@ export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
           size="icon"
           className="h-6 w-6 text-gray-400 hover:text-gray-600"
           onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => onEdit?.(project)}
+          onClick={(e) => { e.stopPropagation(); onEdit?.(project) }}
         >
           <MoreVertical size={14} />
         </Button>

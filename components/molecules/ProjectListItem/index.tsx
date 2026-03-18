@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Calendar, MoreVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,10 +20,14 @@ const PRIORITY_CONFIG: Record<ProjectPriority, { label: string; className: strin
 }
 
 export function ProjectListItem({ project, onEdit }: ProjectListItemProps) {
+  const router = useRouter()
   const priority = PRIORITY_CONFIG[project.priority]
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border bg-white px-4 py-3 transition-colors hover:bg-[#FAFBFC]">
+    <div
+      onClick={() => router.push(`/project/${project.id}`)}
+      className="cursor-pointer flex items-center justify-between gap-4 rounded-lg border bg-white px-4 py-3 transition-colors hover:bg-[#FAFBFC]"
+    >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-[var(--text-primary)]">
           {project.title}
@@ -50,7 +55,7 @@ export function ProjectListItem({ project, onEdit }: ProjectListItemProps) {
           variant="ghost"
           size="icon"
           className="h-7 w-7 text-gray-400 hover:text-gray-600"
-          onClick={() => onEdit?.(project)}
+          onClick={(e) => { e.stopPropagation(); onEdit?.(project) }}
         >
           <MoreVertical size={14} />
         </Button>

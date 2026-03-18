@@ -31,6 +31,7 @@ export interface Task {
   accountId: string
   createdAt: string
   updatedAt: string
+  completedAt?: string
 }
 
 export interface TodayTasks {

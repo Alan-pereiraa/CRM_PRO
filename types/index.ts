@@ -21,3 +21,8 @@ export type {
   TodayTasks,
   DashboardOverview,
 } from './dashboard'
+export type {
+  TaskStatus,
+  CreateTaskInput,
+  UpdateTaskInput,
+} from './task'
