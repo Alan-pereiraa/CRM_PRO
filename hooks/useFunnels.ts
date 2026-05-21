@@ -3,20 +3,23 @@
 import { useEffect, useMemo } from "react"
 import { useFunnelStore, useProjectStore, useModuleLoading, useModuleError } from "@/stores"
 import { useAuth } from "@/hooks/useAuth"
-import { funnelService } from "@/services"
+import { funnelService, projectService } from "@/services"
 import type { FunnelWithProjects } from "@/types"
 
 export function useFunnels() {
   const { user } = useAuth()
   const allFunnels = useFunnelStore((s) => s.funnels)
   const allProjects = useProjectStore((s) => s.projects)
-  const loading = useModuleLoading('funnel')
-  const error = useModuleError('funnel')
+  const funnelLoading = useModuleLoading('funnel')
+  const projectLoading = useModuleLoading('project')
+  const funnelError = useModuleError('funnel')
+  const projectError = useModuleError('project')
 
   useEffect(() => {
     if (!user) return
     funnelService.getAll().catch(() => {
-    
+    })
+    projectService.getAll().catch(() => {
     })
   }, [user])
 
@@ -29,5 +32,9 @@ export function useFunnels() {
     }))
   }, [allFunnels, allProjects])
 
-  return { funnels, loading, error }
+  return {
+    funnels,
+    loading: funnelLoading || projectLoading,
+    error: funnelError ?? projectError,
+  }
 }

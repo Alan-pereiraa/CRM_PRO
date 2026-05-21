@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createProjectSchema } from '@/schemas'
 import { projectService } from '@/services'
-import { useAuth } from '@/hooks/useAuth'
-import { useProjectStore, useTaskStore } from '@/stores'
-import type { Project, Task, CreateProjectInput } from '@/types'
+import { useProjectStore, useModuleLoading, useModuleError } from '@/stores'
+import type { Project, Task, Contact, Funnel, CreateProjectInput } from '@/types'
 
 export interface ProjectStats {
   progress: number
@@ -19,9 +18,13 @@ export interface ProjectStats {
 interface UseProjectReturn {
   project: Project | null
   tasks: Task[]
+  contacts: Contact[]
+  funnel: Funnel | null
   stats: ProjectStats
   loading: boolean
+  error: string | null
   deleteProject: () => Promise<void>
+  refetch: () => Promise<void>
 }
 
 const EMPTY_STATS: ProjectStats = {
@@ -45,12 +48,28 @@ const INITIAL_VALUES: CreateProjectInput = {
 }
 
 export function useProject(projectId: string): UseProjectReturn {
-  const allProjects = useProjectStore((s) => s.projects)
-  const allTasks = useTaskStore((s) => s.tasks)
-  const project = useMemo(() => allProjects.find((p) => p.id === projectId) ?? null, [allProjects, projectId])
-  const tasks = useMemo(() => allTasks.filter((t) => t.projectId === projectId), [allTasks, projectId])
-  const loading = false
+  const projectFromStore = useProjectStore((s) =>
+    s.projects.find((p) => p.id === projectId) ?? null,
+  )
+  const loading = useModuleLoading('project')
+  const error = useModuleError('project')
   const router = useRouter()
+
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [funnel, setFunnel] = useState<Funnel | null>(null)
+
+  const refetch = useCallback(async () => {
+    const details = await projectService.getDetails(projectId)
+    setTasks(details.tasks)
+    setContacts(details.contacts)
+    setFunnel(details.funnel)
+  }, [projectId])
+
+  useEffect(() => {
+    refetch().catch(() => {
+    })
+  }, [refetch])
 
   const stats: ProjectStats = useMemo(() => {
     if (tasks.length === 0) return EMPTY_STATS
@@ -85,11 +104,10 @@ export function useProject(projectId: string): UseProjectReturn {
     router.push('/funnel')
   }, [projectId, router])
 
-  return { project, tasks, stats, loading, deleteProject }
+  return { project: projectFromStore, tasks, contacts, funnel, stats, loading, error, deleteProject, refetch }
 }
 
 export function useProjectForm(onSuccess?: (project: Project) => void) {
-  const { user } = useAuth()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [values, setValues] = useState<CreateProjectInput>(INITIAL_VALUES)
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -148,21 +166,21 @@ export function useProjectForm(onSuccess?: (project: Project) => void) {
   }, [values])
 
   const submit = useCallback(async () => {
-    if (!validate() || !user) return
+    if (!validate()) return
     setLoading(true)
     try {
       let project: Project
       if (editingId) {
         project = await projectService.update(editingId, values)
       } else {
-        project = await projectService.create(values, user.id)
+        project = await projectService.create(values)
       }
       reset()
       onSuccess?.(project)
     } finally {
       setLoading(false)
     }
-  }, [validate, values, user, editingId, reset, onSuccess])
+  }, [validate, values, editingId, reset, onSuccess])
 
   return { values, errors, loading, isEditing, setValue, reset, loadProject, submit }
 }
