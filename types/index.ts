@@ -1,4 +1,4 @@
-export type { Account, PublicAccount } from './account'
+export type { PublicAccount } from './account'
 export type { Funnel, FunnelWithProjects, FunnelViewMode } from './funnel'
 export type {
   Project,

@@ -1,4 +1,4 @@
-export { useAuthStore, setCookieToken, createAccountData } from './authStore'
+export { useAuthStore } from './authStore'
 export { useFunnelStore } from './funnelStore'
 export { useProjectStore } from './projectStore'
 export { useContactStore } from './contactStore'

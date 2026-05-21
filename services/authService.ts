@@ -1,67 +1,46 @@
 import type { PublicAccount } from '@/types'
-import { useAuthStore, setCookieToken, createAccountData, useFunnelStore, useProjectStore } from '@/stores'
-import { funnelService } from '@/services/funnelService'
-import { projectService } from '@/services/projectService'
-import { contactService } from '@/services/contactService'
-import { taskService } from '@/services/taskService'
-import { delay } from '@/lib/utils'
+import { useAuthStore } from '@/stores'
+import { api, ApiError } from '@/lib/api'
 
-function toPublic(account: { id: string; name: string; email: string; createdAt: string }): PublicAccount {
-  return { id: account.id, name: account.name, email: account.email, createdAt: account.createdAt }
+interface AuthResponse {
+  account: PublicAccount
+  accessToken: string
 }
 
 export const authService = {
   async login(email: string, password: string): Promise<PublicAccount> {
-    await delay()
-    const store = useAuthStore.getState()
-    const account = store.findAccountByEmail(email)
-    if (!account || account.password !== password) {
-      throw new Error('Email ou senha incorretos')
-    }
-    const publicAccount = toPublic(account)
-    const token = `token-${account.id}`
-    store.setUser(publicAccount)
-    store.setToken(token)
-    setCookieToken(token)
-    return publicAccount
+    const res = await api.post<AuthResponse>('/auth/sign-in', { email, password })
+    useAuthStore.getState().signIn(res.account, res.accessToken)
+    return res.account
   },
 
   async register(name: string, email: string, password: string): Promise<PublicAccount> {
-    await delay()
-    const store = useAuthStore.getState()
-
-    const existing = store.findAccountByEmail(email)
-    if (existing) {
-      throw new Error('Email ja cadastrado')
-    }
-
-    const newAccount = createAccountData(name, email, password)
-    store.addAccount(newAccount)
-
-    funnelService.createDefaultFunnels(newAccount.id)
-    const funnelIds = useFunnelStore.getState().getByAccount(newAccount.id).map((f) => f.id)
-    const projectIds = projectService.createDefaultProjects(funnelIds, newAccount.id)
-    contactService.createDefaultContacts(projectIds)
-    taskService.createDefaultTasks(projectIds, newAccount.id)
-
-    const publicAccount = toPublic(newAccount)
-    const token = `token-${newAccount.id}`
-    store.setUser(publicAccount)
-    store.setToken(token)
-    setCookieToken(token)
-    return publicAccount
+    const res = await api.post<AuthResponse>('/auth/sign-up', { name, email, password })
+    useAuthStore.getState().signIn(res.account, res.accessToken)
+    return res.account
   },
 
   async getCurrentUser(): Promise<PublicAccount | null> {
-    await delay()
-    return useAuthStore.getState().user
+    const token = useAuthStore.getState().token
+    if (!token) return null
+    try {
+      const account = await api.get<PublicAccount>('/auth/profile')
+      useAuthStore.getState().setUser(account)
+      return account
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        useAuthStore.getState().signOut()
+        return null
+      }
+      throw err
+    }
   },
 
   async logout(): Promise<void> {
-    await delay()
-    const store = useAuthStore.getState()
-    store.setUser(null)
-    store.setToken(null)
-    setCookieToken(null)
+    try {
+      await api.post('/auth/sign-out')
+    } catch {
+    }
+    useAuthStore.getState().signOut()
   },
 }
