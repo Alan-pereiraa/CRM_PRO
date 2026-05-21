@@ -14,8 +14,9 @@ import {
   closestCorners,
 } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
-import type { FunnelWithProjects, Project } from "@/types"
+import type { Funnel, FunnelWithProjects, Project } from "@/types"
 import { projectService } from "@/services/projectService"
+import { funnelService } from "@/services/funnelService"
 
 type Columns = Record<string, Project[]>
 
@@ -41,7 +42,7 @@ const collisionDetection: CollisionDetection = (args) => {
   return closestCorners(args)
 }
 
-function persistPositions(cols: Columns) {
+function persistProjectPositions(cols: Columns) {
   const updates: Array<{ id: string; funnelId: string; position: number }> = []
   for (const [funnelId, projects] of Object.entries(cols)) {
     projects.forEach((p, i) => updates.push({ id: p.id, funnelId, position: i }))
@@ -51,19 +52,36 @@ function persistPositions(cols: Columns) {
 
 export function useKanban(funnels: FunnelWithProjects[]) {
   const [columns, setColumns] = useState<Columns>(() => buildColumns(funnels))
+  const [funnelOrder, setFunnelOrder] = useState<string[]>(() => funnels.map((f) => f.id))
   const [activeProject, setActiveProject] = useState<Project | null>(null)
+  const [activeFunnel, setActiveFunnel] = useState<Funnel | null>(null)
   const isDragging = useRef(false)
 
   useEffect(() => {
-    if (!isDragging.current) setColumns(buildColumns(funnels))
+    if (!isDragging.current) {
+      setColumns(buildColumns(funnels))
+      setFunnelOrder(funnels.map((f) => f.id))
+    }
   }, [funnels])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   )
 
+  function getActiveType(event: { active: DragStartEvent['active'] }): 'funnel' | 'project' | undefined {
+    return event.active.data.current?.type as 'funnel' | 'project' | undefined
+  }
+
   function handleDragStart({ active }: DragStartEvent) {
     isDragging.current = true
+    const type = getActiveType({ active })
+
+    if (type === 'funnel') {
+      const funnel = funnels.find((f) => f.id === String(active.id))
+      if (funnel) setActiveFunnel(funnel)
+      return
+    }
+
     const container = findContainer(columns, active.id)
     if (!container) return
     const project = columns[container].find((p) => p.id === String(active.id))
@@ -71,7 +89,10 @@ export function useKanban(funnels: FunnelWithProjects[]) {
   }
 
   function handleDragOver({ active, over }: DragOverEvent) {
+    const type = getActiveType({ active })
+    if (type === 'funnel') return
     if (!over) return
+
     const from = findContainer(columns, active.id)
     const to = findContainer(columns, over.id)
     if (!from || !to || from === to) return
@@ -91,6 +112,23 @@ export function useKanban(funnels: FunnelWithProjects[]) {
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     isDragging.current = false
+    const type = getActiveType({ active })
+
+    if (type === 'funnel') {
+      if (over && active.id !== over.id) {
+        const oldIndex = funnelOrder.indexOf(String(active.id))
+        const newIndex = funnelOrder.indexOf(String(over.id))
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const next = arrayMove(funnelOrder, oldIndex, newIndex)
+          setFunnelOrder(next)
+          funnelService.reorder(next).catch(() => {
+            // error already reported via uiStore + toast
+          })
+        }
+      }
+      setActiveFunnel(null)
+      return
+    }
 
     if (!over) {
       setActiveProject(null)
@@ -108,12 +146,12 @@ export function useKanban(funnels: FunnelWithProjects[]) {
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
         const next = { ...columns, [from]: arrayMove(items, oldIndex, newIndex) }
         setColumns(next)
-        persistPositions(next)
+        persistProjectPositions(next)
       } else {
-        persistPositions(columns)
+        persistProjectPositions(columns)
       }
     } else {
-      persistPositions(columns)
+      persistProjectPositions(columns)
     }
 
     setActiveProject(null)
@@ -122,12 +160,16 @@ export function useKanban(funnels: FunnelWithProjects[]) {
   function handleDragCancel() {
     isDragging.current = false
     setActiveProject(null)
+    setActiveFunnel(null)
     setColumns(buildColumns(funnels))
+    setFunnelOrder(funnels.map((f) => f.id))
   }
 
   return {
     columns,
+    funnelOrder,
     activeProject,
+    activeFunnel,
     sensors,
     collisionDetection,
     handleDragStart,

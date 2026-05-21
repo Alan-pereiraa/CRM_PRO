@@ -32,7 +32,7 @@ export function KanbanCard({ project, isOverlay, onEdit }: KanbanCardProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: project.id })
+  } = useSortable({ id: project.id, data: { type: 'project' } })
 
   const style = {
     transform: CSS.Transform.toString(transform),
