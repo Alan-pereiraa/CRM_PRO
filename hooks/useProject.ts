@@ -4,7 +4,13 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createProjectSchema } from '@/schemas'
 import { projectService } from '@/services'
-import { useProjectStore, useTaskStore, useModuleLoading, useModuleError } from '@/stores'
+import {
+  useProjectStore,
+  useTaskStore,
+  useContactStore,
+  useModuleLoading,
+  useModuleError,
+} from '@/stores'
 import type { Project, Task, Contact, Funnel, CreateProjectInput } from '@/types'
 
 export interface ProjectStats {
@@ -52,11 +58,11 @@ export function useProject(projectId: string): UseProjectReturn {
     s.projects.find((p) => p.id === projectId) ?? null,
   )
   const allTasks = useTaskStore((s) => s.tasks)
+  const allContacts = useContactStore((s) => s.contacts)
   const loading = useModuleLoading('project')
   const error = useModuleError('project')
   const router = useRouter()
 
-  const [contacts, setContacts] = useState<Contact[]>([])
   const [funnel, setFunnel] = useState<Funnel | null>(null)
 
   const tasks = useMemo(
@@ -64,9 +70,13 @@ export function useProject(projectId: string): UseProjectReturn {
     [allTasks, projectId],
   )
 
+  const contacts = useMemo(
+    () => allContacts.filter((c) => c.projectId === projectId),
+    [allContacts, projectId],
+  )
+
   const refetch = useCallback(async () => {
     const details = await projectService.getDetails(projectId)
-    setContacts(details.contacts)
     setFunnel(details.funnel)
   }, [projectId])
 

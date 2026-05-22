@@ -3,22 +3,26 @@
 import { useState, useCallback } from 'react'
 import { useProject } from '@/hooks/useProject'
 import { useTasksTable } from '@/hooks/useTask'
-import { taskService } from '@/services'
+import { taskService, contactService } from '@/services'
 import { ProjectHeader } from '@/components/organisms/ProjectHeader'
 import { TaskFormDrawer } from '@/components/organisms/TaskFormDrawer'
 import { TasksTableFilter } from '@/components/molecules/TasksTableFilter'
 import { TasksTable } from '@/components/organisms/TasksTable'
 import { TasksTablePagination } from '@/components/molecules/TasksTablePagination'
-import type { Task } from '@/types'
+import { ContactsList } from '@/components/organisms/ContactsList'
+import { ContactFormDrawer } from '@/components/organisms/ContactFormDrawer'
+import type { Task, Contact } from '@/types'
 
 interface ProjectDetailContentProps {
   projectId: string
 }
 
 export function ProjectDetailContent({ projectId }: ProjectDetailContentProps) {
-  const { project, tasks: allTasks, stats, loading, deleteProject } = useProject(projectId)
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const { project, tasks: allTasks, contacts, stats, loading, deleteProject } = useProject(projectId)
+  const [taskDrawerOpen, setTaskDrawerOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [contactDrawerOpen, setContactDrawerOpen] = useState(false)
+  const [editingContact, setEditingContact] = useState<Contact | null>(null)
 
   const {
     tasks,
@@ -35,17 +39,32 @@ export function ProjectDetailContent({ projectId }: ProjectDetailContentProps) {
 
   const handleCreateTask = useCallback(() => {
     setEditingTask(null)
-    setDrawerOpen(true)
+    setTaskDrawerOpen(true)
   }, [])
 
   const handleTaskClick = useCallback((task: Task) => {
     setEditingTask(task)
-    setDrawerOpen(true)
+    setTaskDrawerOpen(true)
   }, [])
 
   const handleToggleComplete = useCallback((task: Task) => {
     const newStatus = task.status === 'completed' ? 'pending' : 'completed'
     taskService.updateStatus(task.id, newStatus)
+  }, [])
+
+  const handleCreateContact = useCallback(() => {
+    setEditingContact(null)
+    setContactDrawerOpen(true)
+  }, [])
+
+  const handleEditContact = useCallback((contact: Contact) => {
+    setEditingContact(contact)
+    setContactDrawerOpen(true)
+  }, [])
+
+  const handleDeleteContact = useCallback((contact: Contact) => {
+    if (!confirm(`Excluir o contato ${contact.name}?`)) return
+    contactService.delete(contact.id)
   }, [])
 
   if (loading) {
@@ -93,11 +112,25 @@ export function ProjectDetailContent({ projectId }: ProjectDetailContentProps) {
         onNext={nextPage}
       />
 
+      <ContactsList
+        contacts={contacts}
+        onAdd={handleCreateContact}
+        onEdit={handleEditContact}
+        onDelete={handleDeleteContact}
+      />
+
       <TaskFormDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
+        open={taskDrawerOpen}
+        onOpenChange={setTaskDrawerOpen}
         projectId={projectId}
         task={editingTask}
+      />
+
+      <ContactFormDrawer
+        open={contactDrawerOpen}
+        onOpenChange={setContactDrawerOpen}
+        projectId={projectId}
+        contact={editingContact}
       />
     </div>
   )

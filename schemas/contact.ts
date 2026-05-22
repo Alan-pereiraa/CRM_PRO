@@ -15,7 +15,6 @@ export const createContactSchema = z.object({
   email: z.string().email('Email invalido'),
   phone: z.string().min(8, 'Telefone deve ter pelo menos 8 caracteres'),
   role: z.string().min(1, 'Cargo e obrigatorio'),
-  projectId: z.string(),
 })
 
 export const updateContactSchema = z.object({

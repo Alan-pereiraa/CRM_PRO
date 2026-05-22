@@ -1,70 +1,37 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import type { Contact, CreateContactInput, UpdateContactInput } from '@/types'
-import { defaultContacts } from '@/mocks'
-import { generateId } from '@/lib/utils'
+import type { Contact } from '@/types'
 
 interface ContactState {
   contacts: Contact[]
-  getByProject: (projectId: string) => Contact[]
-  add: (input: CreateContactInput) => Contact
-  update: (id: string, input: UpdateContactInput) => Contact
-  remove: (id: string) => void
-  addDefaults: (projectIds: string[]) => void
+  setContacts: (contacts: Contact[]) => void
+  upsertContact: (contact: Contact) => void
+  upsertContacts: (contacts: Contact[]) => void
+  removeContact: (id: string) => void
 }
 
-export const useContactStore = create<ContactState>()(
-  persist(
-    (set, get) => ({
-      contacts: [],
+function mergeById(existing: Contact[], incoming: Contact[]): Contact[] {
+  const byId = new Map(existing.map((c) => [c.id, c]))
+  for (const c of incoming) byId.set(c.id, c)
+  return Array.from(byId.values())
+}
 
-      getByProject: (projectId) =>
-        get().contacts.filter((c) => c.projectId === projectId),
+export const useContactStore = create<ContactState>()((set) => ({
+  contacts: [],
 
-      add: (input) => {
-        const newContact: Contact = {
-          id: generateId('contact'),
-          ...input,
-          createdAt: new Date().toISOString(),
-        }
-        set((state) => ({ contacts: [...state.contacts, newContact] }))
-        return newContact
-      },
+  setContacts: (contacts) => set({ contacts }),
 
-      update: (id, input) => {
-        const contacts = get().contacts.map((c) =>
-          c.id === id ? { ...c, ...input } : c,
-        )
-        const updated = contacts.find((c) => c.id === id)
-        if (!updated) throw new Error('Contato nao encontrado')
-        set({ contacts })
-        return updated
-      },
-
-      remove: (id) => {
-        set((state) => ({
-          contacts: state.contacts.filter((c) => c.id !== id),
-        }))
-      },
-
-      addDefaults: (projectIds) => {
-        const now = new Date().toISOString()
-
-        const newContacts: Contact[] = defaultContacts.map((seed) => ({
-          id: generateId('contact'),
-          name: seed.name,
-          email: seed.email,
-          phone: seed.phone,
-          role: seed.role,
-          projectId: projectIds[seed.projectIndex] ?? projectIds[0],
-          createdAt: now,
-        }))
-
-        set((state) => ({ contacts: [...state.contacts, ...newContacts] }))
-      },
+  upsertContact: (contact) =>
+    set((state) => {
+      const exists = state.contacts.some((c) => c.id === contact.id)
+      const next = exists
+        ? state.contacts.map((c) => (c.id === contact.id ? contact : c))
+        : [...state.contacts, contact]
+      return { contacts: next }
     }),
-    {
-      name: 'crm_contacts',
-    },
-  ),
-)
+
+  upsertContacts: (contacts) =>
+    set((state) => ({ contacts: mergeById(state.contacts, contacts) })),
+
+  removeContact: (id) =>
+    set((state) => ({ contacts: state.contacts.filter((c) => c.id !== id) })),
+}))

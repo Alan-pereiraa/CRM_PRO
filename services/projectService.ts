@@ -10,6 +10,7 @@ import type {
 import {
   useProjectStore,
   useTaskStore,
+  useContactStore,
   useUiStore,
 } from '@/stores'
 import { api } from '@/lib/api'
@@ -145,6 +146,7 @@ export const projectService = {
       const tasks = raw.tasks.map(taskFromApi)
       useProjectStore.getState().upsertProject(project)
       useTaskStore.getState().upsertTasks(tasks)
+      useContactStore.getState().upsertContacts(raw.contacts)
       return {
         project,
         tasks,
