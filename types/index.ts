@@ -20,6 +20,7 @@ export type {
   TaskPriority,
   TodayTasks,
   DashboardOverview,
+  RawOverview,
 } from './dashboard'
 export type {
   TaskStatus,

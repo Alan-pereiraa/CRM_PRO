@@ -2,9 +2,16 @@ export interface StatCard {
   id: string
   title: string
   value: string
-  trend: string
-  trendDirection: 'up' | 'down'
+  trend?: string
+  trendDirection?: 'up' | 'down'
   icon: string
+}
+
+export interface RawOverview {
+  totalProjects: number
+  totalContacts: number
+  completedTasks: number
+  pendingTasks: number
 }
 
 export interface FunnelStage {

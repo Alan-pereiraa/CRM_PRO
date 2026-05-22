@@ -4,6 +4,8 @@ import {
   UserPlus,
   TrendingUp,
   TrendingDown,
+  CircleCheck,
+  ListTodo,
 } from "lucide-react"
 import type { StatCard as StatCardType } from "@/types"
 
@@ -15,10 +17,13 @@ const iconMap: Record<string, React.ReactNode> = {
   wallet: <Wallet size={20} />,
   clipboard: <ClipboardList size={20} />,
   "user-plus": <UserPlus size={20} />,
+  "circle-check": <CircleCheck size={20} />,
+  "list-todo": <ListTodo size={20} />,
 }
 
 export function StatCard({ stat }: StatCardProps) {
   const isUp = stat.trendDirection === "up"
+  const showTrend = !!stat.trend
 
   return (
     <div className="rounded-2xl border border-[#F1F5F9] dark:border-border bg-[#F8FAFC] dark:bg-muted p-5">
@@ -35,20 +40,22 @@ export function StatCard({ stat }: StatCardProps) {
         {stat.value}
       </p>
 
-      <div className="mt-3 flex items-center gap-1.5">
-        {isUp ? (
-          <TrendingUp size={14} className="text-[var(--text-green)]" />
-        ) : (
-          <TrendingDown size={14} className="text-[var(--text-danger)]" />
-        )}
-        <span
-          className={`text-xs font-medium ${
-            isUp ? "text-[var(--text-green)]" : "text-[var(--text-danger)]"
-          }`}
-        >
-          {stat.trend}
-        </span>
-      </div>
+      {showTrend && (
+        <div className="mt-3 flex items-center gap-1.5">
+          {isUp ? (
+            <TrendingUp size={14} className="text-[var(--text-green)]" />
+          ) : (
+            <TrendingDown size={14} className="text-[var(--text-danger)]" />
+          )}
+          <span
+            className={`text-xs font-medium ${
+              isUp ? "text-[var(--text-green)]" : "text-[var(--text-danger)]"
+            }`}
+          >
+            {stat.trend}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
