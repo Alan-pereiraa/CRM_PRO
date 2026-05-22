@@ -1,121 +1,113 @@
-"use client"
+'use client'
 
-import { useEffect, useState, useCallback, useMemo } from "react"
-import {
-  dashboardService,
-  taskService,
-  funnelService,
-  projectService,
-} from "@/services"
-import {
-  useAuthStore,
-  useFunnelStore,
-  useProjectStore,
-  useModuleLoading,
-  useModuleError,
-} from "@/stores"
+import { useCallback, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { dashboardService } from '@/services/dashboardService'
+import { useAuthStore } from '@/stores'
+import { dashboardKeys } from './queryKeys'
+import { useProjects } from './useProjects'
+import { useFunnels } from './useFunnels'
+import { useTodayTasks, useUpdateTaskStatus } from './useTasks'
 import type {
   DashboardOverview,
+  FunnelData,
   RawOverview,
   StatCard,
-  FunnelData,
-  Task,
-} from "@/types"
+} from '@/types'
 
 function buildStats(raw: RawOverview): StatCard[] {
   return [
     {
-      id: "stat-projects",
-      title: "Projetos Ativos",
+      id: 'stat-projects',
+      title: 'Projetos Ativos',
       value: String(raw.totalProjects),
-      icon: "clipboard",
+      icon: 'clipboard',
     },
     {
-      id: "stat-contacts",
-      title: "Contatos",
+      id: 'stat-contacts',
+      title: 'Contatos',
       value: String(raw.totalContacts),
-      icon: "user-plus",
+      icon: 'user-plus',
     },
     {
-      id: "stat-tasks",
-      title: "Tarefas Concluídas",
+      id: 'stat-tasks',
+      title: 'Tarefas Concluídas',
       value: `${raw.completedTasks}/${raw.completedTasks + raw.pendingTasks}`,
-      icon: "circle-check",
+      icon: 'circle-check',
     },
   ]
 }
 
-export function useDashboard() {
-  const [todayTasks, setTodayTasks] = useState<Task[]>([])
-  const [raw, setRaw] = useState<RawOverview | null>(null)
+interface UseDashboardResult {
+  data: DashboardOverview | null
+  loading: boolean
+  error: string | null
+  toggleTask: (id: string) => void
+}
 
+export function useDashboard(): UseDashboardResult {
   const user = useAuthStore((s) => s.user)
-  const accountId = user?.id ?? ""
-  const funnels = useFunnelStore((s) => s.funnels)
-  const projects = useProjectStore((s) => s.projects)
-  const loading = useModuleLoading("dashboard")
-  const error = useModuleError("dashboard")
 
-  useEffect(() => {
-    if (!accountId) return
+  const overviewQuery = useQuery({
+    queryKey: dashboardKeys.overview(),
+    queryFn: ({ signal }) => dashboardService.getOverview({ signal }),
+    enabled: !!user,
+  })
 
-    let cancelled = false
-
-    async function fetchAll() {
-      try {
-        const [overview, today] = await Promise.all([
-          dashboardService.getOverview(),
-          taskService.getToday(),
-          funnelService.getAll(),
-          projectService.getAll(),
-        ])
-        if (cancelled) return
-        setRaw(overview)
-        setTodayTasks(today)
-      } catch {
-        // errors reported via uiStore + toast
-      }
-    }
-
-    fetchAll()
-
-    return () => {
-      cancelled = true
-    }
-  }, [accountId])
+  const todayQuery = useTodayTasks()
+  const funnelsQuery = useFunnels()
+  const projectsQuery = useProjects()
+  const updateStatus = useUpdateTaskStatus()
 
   const funnel: FunnelData = useMemo(() => {
+    const funnels = funnelsQuery.data ?? []
+    const projects = projectsQuery.data ?? []
     const stages = funnels.map((f) => ({
       id: f.id,
       name: f.name,
       value: projects.filter((p) => p.funnelId === f.id).length,
     }))
     return { stages, growthPercent: 0 }
-  }, [funnels, projects])
+  }, [funnelsQuery.data, projectsQuery.data])
 
   const data = useMemo<DashboardOverview | null>(() => {
+    const raw = overviewQuery.data
     if (!raw) return null
+    const todayTasks = todayQuery.data ?? []
     return {
       stats: buildStats(raw),
       funnel,
       todayTasks: {
         tasks: todayTasks,
-        pendingCount: todayTasks.filter((t) => t.status !== "completed").length,
+        pendingCount: todayTasks.filter((t) => t.status !== 'completed').length,
       },
     }
-  }, [raw, funnel, todayTasks])
+  }, [overviewQuery.data, funnel, todayQuery.data])
 
   const toggleTask = useCallback(
-    async (id: string) => {
-      const task = todayTasks.find((t) => t.id === id)
+    (id: string) => {
+      const tasks = todayQuery.data ?? []
+      const task = tasks.find((t) => t.id === id)
       if (!task) return
-
-      const newStatus = task.status === "completed" ? "pending" : "completed"
-      const updated = await taskService.updateStatus(id, newStatus)
-      setTodayTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
+      const next = task.status === 'completed' ? 'pending' : 'completed'
+      updateStatus.mutate({ id, status: next })
     },
-    [todayTasks],
+    [todayQuery.data, updateStatus],
   )
 
-  return { data, loading, error, toggleTask }
+  const error =
+    (overviewQuery.error instanceof Error && overviewQuery.error.message) ||
+    (todayQuery.error instanceof Error && todayQuery.error.message) ||
+    null
+
+  return {
+    data,
+    loading:
+      overviewQuery.isLoading ||
+      todayQuery.isLoading ||
+      funnelsQuery.isLoading ||
+      projectsQuery.isLoading,
+    error,
+    toggleTask,
+  }
 }

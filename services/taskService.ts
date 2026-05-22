@@ -1,5 +1,4 @@
 import type { Task, CreateTaskInput, UpdateTaskInput, TaskStatus } from '@/types'
-import { useTaskStore, useUiStore } from '@/stores'
 import { api } from '@/lib/api'
 import {
   toApiTaskStatus,
@@ -20,6 +19,10 @@ export interface ApiTask {
   projectId: string
   createdAt: string
   updatedAt: string
+}
+
+interface RequestOpts {
+  signal?: AbortSignal
 }
 
 export function taskFromApi(t: ApiTask): Task {
@@ -60,85 +63,41 @@ function toUpdatePayload(input: UpdateTaskInput): Record<string, unknown> {
   return payload
 }
 
-async function withErrorReport<T>(fn: () => Promise<T>, fallback: string): Promise<T> {
-  try {
-    return await fn()
-  } catch (err) {
-    const message = err instanceof Error ? err.message : fallback
-    useUiStore.getState().setError('task', message)
-    throw err
-  }
-}
-
 export const taskService = {
-  async getAll(status?: TaskStatus): Promise<Task[]> {
-    const ui = useUiStore.getState()
-    ui.setLoading('task', true)
-    ui.setError('task', null)
-    try {
-      const query = status ? { status: toApiTaskStatus(status) } : undefined
-      const data = await api.get<ApiTask[]>('/tasks', { query })
-      const tasks = data.map(taskFromApi)
-      useTaskStore.getState().setTasks(tasks)
-      return tasks
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao carregar tarefas'
-      useUiStore.getState().setError('task', message)
-      throw err
-    } finally {
-      useUiStore.getState().setLoading('task', false)
-    }
+  async getAll(status?: TaskStatus, opts: RequestOpts = {}): Promise<Task[]> {
+    const query = status ? { status: toApiTaskStatus(status) } : undefined
+    const data = await api.get<ApiTask[]>('/tasks', { query, signal: opts.signal })
+    return data.map(taskFromApi)
   },
 
-  async getToday(): Promise<Task[]> {
-    return withErrorReport(async () => {
-      const data = await api.get<ApiTask[]>('/tasks/today')
-      return data.map(taskFromApi)
-    }, 'Erro ao carregar tarefas de hoje')
+  async getToday(opts: RequestOpts = {}): Promise<Task[]> {
+    const data = await api.get<ApiTask[]>('/tasks/today', { signal: opts.signal })
+    return data.map(taskFromApi)
   },
 
-  async getById(id: string): Promise<Task> {
-    return withErrorReport(async () => {
-      const raw = await api.get<ApiTask>(`/tasks/${id}`)
-      const task = taskFromApi(raw)
-      useTaskStore.getState().upsertTask(task)
-      return task
-    }, 'Erro ao carregar tarefa')
+  async getById(id: string, opts: RequestOpts = {}): Promise<Task> {
+    const raw = await api.get<ApiTask>(`/tasks/${id}`, { signal: opts.signal })
+    return taskFromApi(raw)
   },
 
   async create(input: CreateTaskInput): Promise<Task> {
-    return withErrorReport(async () => {
-      const raw = await api.post<ApiTask>('/tasks', toCreatePayload(input))
-      const task = taskFromApi(raw)
-      useTaskStore.getState().upsertTask(task)
-      return task
-    }, 'Erro ao criar tarefa')
+    const raw = await api.post<ApiTask>('/tasks', toCreatePayload(input))
+    return taskFromApi(raw)
   },
 
   async update(id: string, input: UpdateTaskInput): Promise<Task> {
-    return withErrorReport(async () => {
-      const raw = await api.patch<ApiTask>(`/tasks/${id}`, toUpdatePayload(input))
-      const task = taskFromApi(raw)
-      useTaskStore.getState().upsertTask(task)
-      return task
-    }, 'Erro ao atualizar tarefa')
+    const raw = await api.patch<ApiTask>(`/tasks/${id}`, toUpdatePayload(input))
+    return taskFromApi(raw)
   },
 
   async updateStatus(id: string, status: TaskStatus): Promise<Task> {
-    return withErrorReport(async () => {
-      const raw = await api.patch<ApiTask>(`/tasks/${id}/status`, {
-        status: toApiTaskStatus(status),
-      })
-      const task = taskFromApi(raw)
-      useTaskStore.getState().upsertTask(task)
-      return task
-    }, 'Erro ao atualizar status da tarefa')
+    const raw = await api.patch<ApiTask>(`/tasks/${id}/status`, {
+      status: toApiTaskStatus(status),
+    })
+    return taskFromApi(raw)
   },
 
   async delete(id: string): Promise<void> {
-    await withErrorReport(async () => {
-      await api.delete<void>(`/tasks/${id}`)
-    }, 'Erro ao excluir tarefa')
-    useTaskStore.getState().removeTask(id)
+    await api.delete<void>(`/tasks/${id}`)
   },
 }

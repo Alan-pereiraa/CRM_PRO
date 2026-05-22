@@ -10,7 +10,7 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet"
 import { ContactFormFields } from "@/components/molecules/ContactFormFields"
-import { useContactForm } from "@/hooks/useContact"
+import { useContactForm } from "@/hooks/forms/useContactForm"
 import type { Contact } from "@/types"
 
 interface ContactFormDrawerProps {
@@ -26,15 +26,14 @@ export function ContactFormDrawer({
   projectId,
   contact,
 }: ContactFormDrawerProps) {
-  const { values, errors, loading, isEditing, setValue, reset, submit } =
-    useContactForm({
-      projectId,
-      contact,
-      onSuccess: () => onOpenChange(false),
-    })
+  const { form, onSubmit, isSubmitting, isEditing } = useContactForm({
+    projectId,
+    contact,
+    onSuccess: () => onOpenChange(false),
+  })
 
   const handleClose = (nextOpen: boolean) => {
-    if (!nextOpen) reset()
+    if (!nextOpen) form.reset()
     onOpenChange(nextOpen)
   }
 
@@ -55,33 +54,32 @@ export function ContactFormDrawer({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="min-w-0 flex-1 overflow-x-hidden px-4">
-          <ContactFormFields
-            values={values}
-            errors={errors}
-            onValueChange={setValue}
-          />
-        </div>
+        <form onSubmit={onSubmit} className="flex min-w-0 flex-1 flex-col">
+          <div className="min-w-0 flex-1 overflow-x-hidden px-4">
+            <ContactFormFields form={form} />
+          </div>
 
-        <SheetFooter className="flex-row gap-3 border-t pt-4">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => handleClose(false)}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            className="flex-1 bg-[var(--button-default)] text-white hover:bg-[var(--button-default)]/90"
-            onClick={submit}
-            disabled={loading}
-          >
-            {loading
-              ? isEditing ? "Salvando..." : "Criando..."
-              : isEditing ? "Salvar Alteracoes" : "Criar Contato"}
-          </Button>
-        </SheetFooter>
+          <SheetFooter className="flex-row gap-3 border-t pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => handleClose(false)}
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 bg-[var(--button-default)] text-white hover:bg-[var(--button-default)]/90"
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? isEditing ? "Salvando..." : "Criando..."
+                : isEditing ? "Salvar Alteracoes" : "Criar Contato"}
+            </Button>
+          </SheetFooter>
+        </form>
       </SheetContent>
     </Sheet>
   )

@@ -1,9 +1,13 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { useProject } from '@/hooks/useProject'
-import { useTasksTable } from '@/hooks/useTask'
-import { taskService, contactService } from '@/services'
+import { useState, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { useProjectDetails } from '@/hooks/useProjects'
+import { useDeleteProject } from '@/hooks/useProjects'
+import { useUpdateTaskStatus } from '@/hooks/useTasks'
+import { useDeleteContact } from '@/hooks/useContacts'
+import { useTasksTable } from '@/hooks/useTasks'
+import { computeProjectStats } from '@/lib/stats/project'
 import { ProjectHeader } from '@/components/organisms/ProjectHeader'
 import { TaskFormDrawer } from '@/components/organisms/TaskFormDrawer'
 import { TasksTableFilter } from '@/components/molecules/TasksTableFilter'
@@ -18,7 +22,18 @@ interface ProjectDetailContentProps {
 }
 
 export function ProjectDetailContent({ projectId }: ProjectDetailContentProps) {
-  const { project, tasks: allTasks, contacts, stats, loading, deleteProject } = useProject(projectId)
+  const router = useRouter()
+  const detailsQuery = useProjectDetails(projectId)
+  const updateTaskStatus = useUpdateTaskStatus()
+  const deleteContact = useDeleteContact()
+  const deleteProjectMutation = useDeleteProject()
+
+  const project = detailsQuery.data?.project ?? null
+  const allTasks = useMemo(() => detailsQuery.data?.tasks ?? [], [detailsQuery.data])
+  const contacts = useMemo(() => detailsQuery.data?.contacts ?? [], [detailsQuery.data])
+  const stats = useMemo(() => computeProjectStats(allTasks), [allTasks])
+  const loading = detailsQuery.isLoading
+
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [contactDrawerOpen, setContactDrawerOpen] = useState(false)
@@ -47,10 +62,13 @@ export function ProjectDetailContent({ projectId }: ProjectDetailContentProps) {
     setTaskDrawerOpen(true)
   }, [])
 
-  const handleToggleComplete = useCallback((task: Task) => {
-    const newStatus = task.status === 'completed' ? 'pending' : 'completed'
-    taskService.updateStatus(task.id, newStatus)
-  }, [])
+  const handleToggleComplete = useCallback(
+    (task: Task) => {
+      const next = task.status === 'completed' ? 'pending' : 'completed'
+      updateTaskStatus.mutate({ id: task.id, status: next })
+    },
+    [updateTaskStatus],
+  )
 
   const handleCreateContact = useCallback(() => {
     setEditingContact(null)
@@ -62,10 +80,18 @@ export function ProjectDetailContent({ projectId }: ProjectDetailContentProps) {
     setContactDrawerOpen(true)
   }, [])
 
-  const handleDeleteContact = useCallback((contact: Contact) => {
-    if (!confirm(`Excluir o contato ${contact.name}?`)) return
-    contactService.delete(contact.id)
-  }, [])
+  const handleDeleteContact = useCallback(
+    (contact: Contact) => {
+      if (!confirm(`Excluir o contato ${contact.name}?`)) return
+      deleteContact.mutate({ id: contact.id, projectId: contact.projectId })
+    },
+    [deleteContact],
+  )
+
+  const handleDeleteProject = useCallback(async () => {
+    await deleteProjectMutation.mutateAsync(projectId)
+    router.push('/funnel')
+  }, [deleteProjectMutation, projectId, router])
 
   if (loading) {
     return <ProjectHeaderSkeleton />
@@ -85,7 +111,7 @@ export function ProjectDetailContent({ projectId }: ProjectDetailContentProps) {
         project={project}
         stats={stats}
         onCreateTask={handleCreateTask}
-        onDelete={deleteProject}
+        onDelete={handleDeleteProject}
       />
 
       <TasksTableFilter

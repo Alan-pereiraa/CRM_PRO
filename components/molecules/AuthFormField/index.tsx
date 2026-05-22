@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import type { UseFormRegisterReturn } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff } from "lucide-react"
@@ -8,27 +9,23 @@ import { Eye, EyeOff } from "lucide-react"
 interface AuthFormFieldProps {
   label: string
   labelExtra?: React.ReactNode
-  name: string
   placeholder: string
   type?: string
   icon: React.ReactNode
   showPasswordToggle?: boolean
   error?: string
-  value?: string
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  register: UseFormRegisterReturn
 }
 
 export function AuthFormField({
   label,
   labelExtra,
-  name,
   placeholder,
   type = "text",
   icon,
   showPasswordToggle = false,
   error,
-  value,
-  onChange,
+  register,
 }: AuthFormFieldProps) {
   const [showPassword, setShowPassword] = useState(false)
 
@@ -52,11 +49,10 @@ export function AuthFormField({
         </div>
         <Input
           type={inputType}
-          name={name}
           placeholder={placeholder}
-          value={value}
-          onChange={onChange}
+          aria-invalid={!!error}
           className={`h-11 w-full rounded-xl border-transparent bg-[#F1F5F9] dark:bg-accent pl-11 text-sm placeholder:text-[var(--text-gray-light)] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 sm:h-12 ${showPasswordToggle ? "pr-11" : "pr-4"}`}
+          {...register}
         />
         {showPasswordToggle && (
           <button

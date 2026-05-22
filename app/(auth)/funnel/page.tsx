@@ -5,14 +5,14 @@ import { FunnelPageHeader } from "@/components/molecules/FunnelPageHeader"
 import { FunnelListView } from "@/components/organisms/FunnelListView"
 import { FunnelKanbanView } from "@/components/organisms/FunnelKanbanView"
 import { ProjectFormDrawer } from "@/components/organisms/ProjectFormDrawer"
-import { useFunnels } from "@/hooks/useFunnels"
+import { useFunnelsWithProjects } from "@/hooks/useFunnels"
 import type { FunnelViewMode, Project } from "@/types"
 
 export default function FunnelPage() {
   const [view, setView] = useState<FunnelViewMode>("kanban")
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
-  const { funnels } = useFunnels()
+  const { funnels } = useFunnelsWithProjects()
 
   const handleNewProject = () => {
     setEditingProject(null)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   type DragStartEvent,
   type DragOverEvent,
@@ -15,8 +15,8 @@ import {
 } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
 import type { Funnel, FunnelWithProjects, Project } from "@/types"
-import { projectService } from "@/services/projectService"
-import { funnelService } from "@/services/funnelService"
+import { useReorderProjects } from "@/hooks/useProjects"
+import { useReorderFunnels } from "@/hooks/useFunnels"
 
 type Columns = Record<string, Project[]>
 
@@ -42,20 +42,15 @@ const collisionDetection: CollisionDetection = (args) => {
   return closestCorners(args)
 }
 
-function persistProjectPositions(cols: Columns) {
-  const updates: Array<{ id: string; funnelId: string; position: number }> = []
-  for (const [funnelId, projects] of Object.entries(cols)) {
-    projects.forEach((p, i) => updates.push({ id: p.id, funnelId, position: i }))
-  }
-  projectService.reorderProjects(updates)
-}
-
 export function useKanban(funnels: FunnelWithProjects[]) {
   const [columns, setColumns] = useState<Columns>(() => buildColumns(funnels))
   const [funnelOrder, setFunnelOrder] = useState<string[]>(() => funnels.map((f) => f.id))
   const [activeProject, setActiveProject] = useState<Project | null>(null)
   const [activeFunnel, setActiveFunnel] = useState<Funnel | null>(null)
   const isDragging = useRef(false)
+
+  const reorderProjects = useReorderProjects()
+  const reorderFunnels = useReorderFunnels()
 
   useEffect(() => {
     if (!isDragging.current) {
@@ -66,6 +61,17 @@ export function useKanban(funnels: FunnelWithProjects[]) {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  )
+
+  const persistProjectPositions = useCallback(
+    (cols: Columns) => {
+      const updates: Array<{ id: string; funnelId: string; position: number }> = []
+      for (const [funnelId, projects] of Object.entries(cols)) {
+        projects.forEach((p, i) => updates.push({ id: p.id, funnelId, position: i }))
+      }
+      reorderProjects.mutate(updates)
+    },
+    [reorderProjects],
   )
 
   function getActiveType(event: { active: DragStartEvent['active'] }): 'funnel' | 'project' | undefined {
@@ -121,9 +127,7 @@ export function useKanban(funnels: FunnelWithProjects[]) {
         if (oldIndex !== -1 && newIndex !== -1) {
           const next = arrayMove(funnelOrder, oldIndex, newIndex)
           setFunnelOrder(next)
-          funnelService.reorder(next).catch(() => {
-            // error already reported via uiStore + toast
-          })
+          reorderFunnels.mutate(next)
         }
       }
       setActiveFunnel(null)

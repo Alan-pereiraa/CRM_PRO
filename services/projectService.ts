@@ -7,12 +7,6 @@ import type {
   UpdateProjectInput,
   ProjectStatus,
 } from '@/types'
-import {
-  useProjectStore,
-  useTaskStore,
-  useContactStore,
-  useUiStore,
-} from '@/stores'
 import { api } from '@/lib/api'
 import {
   toApiProjectStatus,
@@ -50,6 +44,10 @@ export interface ProjectDetail {
   tasks: Task[]
   contacts: Contact[]
   funnel: Funnel
+}
+
+interface RequestOpts {
+  signal?: AbortSignal
 }
 
 function projectFromApi(p: ApiProject): Project {
@@ -94,115 +92,67 @@ function toUpdatePayload(input: UpdateProjectInput): Record<string, unknown> {
   return payload
 }
 
-async function withErrorReport<T>(fn: () => Promise<T>, fallback: string): Promise<T> {
-  try {
-    return await fn()
-  } catch (err) {
-    const message = err instanceof Error ? err.message : fallback
-    useUiStore.getState().setError('project', message)
-    throw err
-  }
-}
-
 export const projectService = {
-  async getAll(): Promise<Project[]> {
-    const ui = useUiStore.getState()
-    ui.setLoading('project', true)
-    ui.setError('project', null)
-    try {
-      const data = await api.get<ApiProject[]>('/projects')
-      const projects = data.map(projectFromApi)
-      useProjectStore.getState().setProjects(projects)
-      return projects
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao carregar projetos'
-      useUiStore.getState().setError('project', message)
-      throw err
-    } finally {
-      useUiStore.getState().setLoading('project', false)
+  async getAll(opts: RequestOpts = {}): Promise<Project[]> {
+    const data = await api.get<ApiProject[]>('/projects', { signal: opts.signal })
+    return data.map(projectFromApi)
+  },
+
+  async getById(id: string, opts: RequestOpts = {}): Promise<Project> {
+    const raw = await api.get<ApiProject>(`/projects/${id}`, { signal: opts.signal })
+    return projectFromApi(raw)
+  },
+
+  async getByFunnel(funnelId: string, opts: RequestOpts = {}): Promise<Project[]> {
+    const data = await api.get<ApiProject[]>(`/funnels/${funnelId}/projects`, {
+      signal: opts.signal,
+    })
+    return data.map(projectFromApi)
+  },
+
+  async getDetails(id: string, opts: RequestOpts = {}): Promise<ProjectDetail> {
+    const raw = await api.get<ApiProjectDetails>(`/projects/${id}/details`, {
+      signal: opts.signal,
+    })
+    return {
+      project: projectFromApi(raw),
+      tasks: raw.tasks.map(taskFromApi),
+      contacts: raw.contacts,
+      funnel: raw.funnel,
     }
   },
 
-  async getById(id: string): Promise<Project> {
-    return withErrorReport(async () => {
-      const raw = await api.get<ApiProject>(`/projects/${id}`)
-      const project = projectFromApi(raw)
-      useProjectStore.getState().upsertProject(project)
-      return project
-    }, 'Erro ao carregar projeto')
-  },
-
-  async getByFunnel(funnelId: string): Promise<Project[]> {
-    return withErrorReport(async () => {
-      const data = await api.get<ApiProject[]>(`/funnels/${funnelId}/projects`)
-      return data.map(projectFromApi)
-    }, 'Erro ao carregar projetos do funil')
-  },
-
-  async getDetails(id: string): Promise<ProjectDetail> {
-    return withErrorReport(async () => {
-      const raw = await api.get<ApiProjectDetails>(`/projects/${id}/details`)
-      const project = projectFromApi(raw)
-      const tasks = raw.tasks.map(taskFromApi)
-      useProjectStore.getState().upsertProject(project)
-      useTaskStore.getState().upsertTasks(tasks)
-      useContactStore.getState().upsertContacts(raw.contacts)
-      return {
-        project,
-        tasks,
-        contacts: raw.contacts,
-        funnel: raw.funnel,
-      }
-    }, 'Erro ao carregar detalhes do projeto')
-  },
-
   async create(input: CreateProjectInput): Promise<Project> {
-    return withErrorReport(async () => {
-      const raw = await api.post<ApiProject>('/projects', toCreatePayload(input))
-      const project = projectFromApi(raw)
-      useProjectStore.getState().upsertProject(project)
-      return project
-    }, 'Erro ao criar projeto')
+    const raw = await api.post<ApiProject>('/projects', toCreatePayload(input))
+    return projectFromApi(raw)
   },
 
   async update(id: string, input: UpdateProjectInput): Promise<Project> {
-    return withErrorReport(async () => {
-      const raw = await api.patch<ApiProject>(`/projects/${id}`, toUpdatePayload(input))
-      const project = projectFromApi(raw)
-      useProjectStore.getState().upsertProject(project)
-      return project
-    }, 'Erro ao atualizar projeto')
+    const raw = await api.patch<ApiProject>(`/projects/${id}`, toUpdatePayload(input))
+    return projectFromApi(raw)
   },
 
   async updateStatus(id: string, status: ProjectStatus): Promise<Project> {
-    return withErrorReport(async () => {
-      const raw = await api.patch<ApiProject>(`/projects/${id}/status`, {
-        status: toApiProjectStatus(status),
-      })
-      const project = projectFromApi(raw)
-      useProjectStore.getState().upsertProject(project)
-      return project
-    }, 'Erro ao atualizar status do projeto')
+    const raw = await api.patch<ApiProject>(`/projects/${id}/status`, {
+      status: toApiProjectStatus(status),
+    })
+    return projectFromApi(raw)
   },
 
-  async reorderProjects(updates: Array<{ id: string; funnelId: string; position: number }>): Promise<void> {
-    await withErrorReport(async () => {
-      await Promise.all(
-        updates.map((u) =>
-          api.patch<ApiProject>(`/projects/${u.id}`, {
-            funnelId: u.funnelId,
-            position: u.position,
-          }),
-        ),
-      )
-    }, 'Erro ao reordenar projetos')
-    await projectService.getAll()
+  async reorderProjects(
+    updates: Array<{ id: string; funnelId: string; position: number }>,
+  ): Promise<void> {
+    await Promise.all(
+      updates.map((u) =>
+        api.patch<ApiProject>(`/projects/${u.id}`, {
+          funnelId: u.funnelId,
+          position: u.position,
+        }),
+      ),
+    )
   },
 
   async delete(id: string): Promise<void> {
-    await withErrorReport(async () => {
-      await api.delete<void>(`/projects/${id}`)
-    }, 'Erro ao excluir projeto')
-    useProjectStore.getState().removeProject(id)
+    await api.delete<void>(`/projects/${id}`)
   },
 }

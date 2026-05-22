@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ProgressBar } from '@/components/atoms/ProgressBar'
 import type { Project } from '@/types'
-import type { ProjectStats } from '@/hooks/useProject'
+import type { ProjectStats } from '@/lib/stats/project'
 import { formatTrackedTime, formatDateLong } from '@/lib/utils'
 
 interface ProjectHeaderProps {
