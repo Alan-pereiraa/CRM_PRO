@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores'
+import { tokenStorage } from '@/lib/tokenStorage'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000'
 
@@ -36,7 +36,7 @@ async function refreshAccessToken(): Promise<string | null> {
       if (!res.ok) return null
       const data = (await res.json()) as { accessToken?: string }
       const token = data.accessToken ?? null
-      if (token) useAuthStore.getState().setToken(token)
+      if (token) tokenStorage.set(token)
       return token
     } catch {
       return null
@@ -65,7 +65,7 @@ async function request<T>(
   options: RequestOptions = {},
   isRetry = false,
 ): Promise<T> {
-  const token = useAuthStore.getState().token
+  const token = tokenStorage.get()
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }

@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { contactService } from '@/services/contactService'
-import { useAuthStore } from '@/stores'
+import { useCurrentUser } from './useCurrentUser'
 import { contactKeys, projectKeys } from './queryKeys'
 import type { Contact, CreateContactInput, UpdateContactInput } from '@/types'
 
@@ -14,7 +14,7 @@ function toastError(fallback: string) {
 }
 
 export function useContacts() {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: contactKeys.list(),
     queryFn: ({ signal }) => contactService.getAll({ signal }),
@@ -23,7 +23,7 @@ export function useContacts() {
 }
 
 export function useContactsByProject(projectId: string) {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: contactKeys.byProject(projectId),
     queryFn: ({ signal }) => contactService.getByProject(projectId, { signal }),

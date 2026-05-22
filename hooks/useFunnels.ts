@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { funnelService } from '@/services/funnelService'
-import { useAuthStore } from '@/stores'
+import { useCurrentUser } from './useCurrentUser'
 import { funnelKeys, projectKeys } from './queryKeys'
 import { useProjects } from './useProjects'
 import type { Funnel, FunnelWithProjects } from '@/types'
@@ -16,7 +16,7 @@ function toastError(fallback: string) {
 }
 
 export function useFunnels() {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: funnelKeys.list(),
     queryFn: ({ signal }) => funnelService.getAll({ signal }),

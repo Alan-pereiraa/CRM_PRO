@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { projectService, type ProjectDetail } from '@/services/projectService'
-import { useAuthStore } from '@/stores'
+import { useCurrentUser } from './useCurrentUser'
 import { projectKeys, taskKeys, contactKeys, dashboardKeys } from './queryKeys'
 import type {
   Project,
@@ -19,7 +19,7 @@ function toastError(fallback: string) {
 }
 
 export function useProjects() {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: projectKeys.list(),
     queryFn: ({ signal }) => projectService.getAll({ signal }),
@@ -28,7 +28,7 @@ export function useProjects() {
 }
 
 export function useProject(id: string) {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: projectKeys.detail(id),
     queryFn: ({ signal }) => projectService.getById(id, { signal }),
@@ -37,7 +37,7 @@ export function useProject(id: string) {
 }
 
 export function useProjectDetails(id: string) {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: projectKeys.full(id),
     queryFn: ({ signal }) => projectService.getDetails(id, { signal }),

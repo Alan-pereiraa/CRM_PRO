@@ -1,18 +1,21 @@
 import { QueryCache, QueryClient } from '@tanstack/react-query'
 import { ApiError } from '@/lib/api'
-import { useAuthStore } from '@/stores'
+import { tokenStorage } from '@/lib/tokenStorage'
+
+let sharedClient: QueryClient | null = null
 
 function handleGlobalError(err: unknown): void {
   if (!(err instanceof ApiError)) return
   if (err.status !== 401) return
-  useAuthStore.getState().signOut()
+  tokenStorage.clear()
+  sharedClient?.clear()
   if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
     window.location.assign('/login')
   }
 }
 
 export function makeQueryClient(): QueryClient {
-  return new QueryClient({
+  const client = new QueryClient({
     queryCache: new QueryCache({
       onError: handleGlobalError,
     }),
@@ -29,4 +32,6 @@ export function makeQueryClient(): QueryClient {
       },
     },
   })
+  sharedClient = client
+  return client
 }

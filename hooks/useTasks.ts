@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { taskService } from '@/services/taskService'
-import { useAuthStore } from '@/stores'
+import { useCurrentUser } from './useCurrentUser'
 import {
   dashboardKeys,
   projectKeys,
@@ -25,7 +25,7 @@ function toastError(fallback: string) {
 }
 
 export function useTasks(status?: TaskStatus) {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: taskKeys.list({ status }),
     queryFn: ({ signal }) => taskService.getAll(status, { signal }),
@@ -34,7 +34,7 @@ export function useTasks(status?: TaskStatus) {
 }
 
 export function useTodayTasks() {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: taskKeys.today(),
     queryFn: ({ signal }) => taskService.getToday({ signal }),
@@ -43,7 +43,7 @@ export function useTodayTasks() {
 }
 
 export function useTask(id: string) {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
   return useQuery({
     queryKey: taskKeys.detail(id),
     queryFn: ({ signal }) => taskService.getById(id, { signal }),

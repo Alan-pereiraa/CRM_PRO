@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { dashboardService } from '@/services/dashboardService'
-import { useAuthStore } from '@/stores'
+import { useCurrentUser } from './useCurrentUser'
 import { dashboardKeys } from './queryKeys'
 import { useProjects } from './useProjects'
 import { useFunnels } from './useFunnels'
@@ -46,7 +46,7 @@ interface UseDashboardResult {
 }
 
 export function useDashboard(): UseDashboardResult {
-  const user = useAuthStore((s) => s.user)
+  const { data: user } = useCurrentUser()
 
   const overviewQuery = useQuery({
     queryKey: dashboardKeys.overview(),

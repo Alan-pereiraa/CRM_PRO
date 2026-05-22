@@ -2,11 +2,13 @@
 
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { loginSchema, type LoginInput } from '@/schemas'
 import { authService } from '@/services'
+import { tokenStorage } from '@/lib/tokenStorage'
+import { authKeys } from '@/hooks/useCurrentUser'
 
 export type LoginFormValues = LoginInput
 
@@ -18,6 +20,7 @@ interface UseLoginFormResult {
 
 export function useLoginForm(): UseLoginFormResult {
   const router = useRouter()
+  const qc = useQueryClient()
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -27,7 +30,9 @@ export function useLoginForm(): UseLoginFormResult {
   const mutation = useMutation({
     mutationFn: ({ email, password }: LoginFormValues) =>
       authService.login(email, password),
-    onSuccess: () => {
+    onSuccess: ({ account, accessToken }) => {
+      tokenStorage.set(accessToken)
+      qc.setQueryData(authKeys.me(), account)
       toast.success('Login realizado com sucesso!')
       router.push('/')
     },
