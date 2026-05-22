@@ -28,7 +28,6 @@ export interface Task {
   priority: TaskPriority
   dueDate: string
   projectId: string
-  accountId: string
   createdAt: string
   updatedAt: string
   completedAt?: string

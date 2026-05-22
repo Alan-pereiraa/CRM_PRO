@@ -3,12 +3,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createTaskSchema } from '@/schemas'
 import { taskService } from '@/services'
-import { useAuth } from '@/hooks/useAuth'
 import type { Task, TaskStatus, TaskPriority, CreateTaskInput } from '@/types'
 
-type FieldErrors = Partial<Record<keyof CreateTaskInput, string>>
+type TaskFormValues = Omit<CreateTaskInput, 'projectId'>
 
-const INITIAL_VALUES: CreateTaskInput = {
+type FieldErrors = Partial<Record<keyof TaskFormValues, string>>
+
+const INITIAL_VALUES: TaskFormValues = {
   title: '',
   description: '',
   status: 'pending',
@@ -16,13 +17,13 @@ const INITIAL_VALUES: CreateTaskInput = {
   dueDate: '',
 }
 
-function taskToFormValues(task: Task): CreateTaskInput {
+function taskToFormValues(task: Task): TaskFormValues {
   return {
     title: task.title,
     description: task.description,
     status: task.status,
     priority: task.priority,
-    dueDate: task.dueDate.split('T')[0],
+    dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
   }
 }
 
@@ -33,9 +34,8 @@ interface UseTaskFormOptions {
 }
 
 export function useTaskForm({ projectId, task, onSuccess }: UseTaskFormOptions) {
-  const { user } = useAuth()
   const isEditing = task !== null && task !== undefined
-  const [values, setValues] = useState<CreateTaskInput>(
+  const [values, setValues] = useState<TaskFormValues>(
     task ? taskToFormValues(task) : INITIAL_VALUES,
   )
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -47,7 +47,7 @@ export function useTaskForm({ projectId, task, onSuccess }: UseTaskFormOptions) 
   }, [task])
 
   const setValue = useCallback(
-    <K extends keyof CreateTaskInput>(field: K, value: CreateTaskInput[K]) => {
+    <K extends keyof TaskFormValues>(field: K, value: TaskFormValues[K]) => {
       setValues((prev) => ({ ...prev, [field]: value }))
       setErrors((prev) => {
         if (!prev[field]) return prev
@@ -73,7 +73,7 @@ export function useTaskForm({ projectId, task, onSuccess }: UseTaskFormOptions) 
 
     const fieldErrors: FieldErrors = {}
     for (const issue of result.error.issues) {
-      const field = issue.path[0] as keyof CreateTaskInput
+      const field = issue.path[0] as keyof TaskFormValues
       if (!fieldErrors[field]) {
         fieldErrors[field] = issue.message
       }
@@ -83,23 +83,19 @@ export function useTaskForm({ projectId, task, onSuccess }: UseTaskFormOptions) 
   }, [values])
 
   const submit = useCallback(async () => {
-    if (!validate() || !user) return
+    if (!validate()) return
     setLoading(true)
     try {
       if (isEditing && task) {
         await taskService.update(task.id, values)
       } else {
-        await taskService.create({
-          ...values,
-          projectId,
-          accountId: user.id,
-        })
+        await taskService.create({ ...values, projectId })
       }
       onSuccess?.()
     } finally {
       setLoading(false)
     }
-  }, [validate, values, user, isEditing, task, projectId, onSuccess])
+  }, [validate, values, isEditing, task, projectId, onSuccess])
 
   return { values, errors, loading, isEditing, setValue, reset, submit }
 }

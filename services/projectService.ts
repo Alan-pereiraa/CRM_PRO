@@ -9,8 +9,8 @@ import type {
 } from '@/types'
 import {
   useProjectStore,
+  useTaskStore,
   useUiStore,
-  useAuthStore,
 } from '@/stores'
 import { api } from '@/lib/api'
 import {
@@ -18,11 +18,10 @@ import {
   fromApiProjectStatus,
   toApiPriority,
   fromApiPriority,
-  fromApiTaskStatus,
   type ApiProjectStatus,
   type ApiPriority,
-  type ApiTaskStatus,
 } from '@/lib/mappers'
+import { taskFromApi, type ApiTask } from './taskService'
 
 interface ApiProject {
   id: string
@@ -35,18 +34,6 @@ interface ApiProject {
   position: number
   funnelId: string
   accountId: string
-  createdAt: string
-  updatedAt: string
-}
-
-interface ApiTask {
-  id: string
-  title: string
-  description: string | null
-  status: ApiTaskStatus
-  priority: ApiPriority
-  dueDate: string | null
-  projectId: string
   createdAt: string
   updatedAt: string
 }
@@ -78,21 +65,6 @@ function projectFromApi(p: ApiProject): Project {
     accountId: p.accountId,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
-  }
-}
-
-function taskFromApi(t: ApiTask): Task {
-  return {
-    id: t.id,
-    title: t.title,
-    description: t.description ?? '',
-    status: fromApiTaskStatus(t.status),
-    priority: fromApiPriority(t.priority),
-    dueDate: t.dueDate ?? '',
-    projectId: t.projectId,
-    accountId: useAuthStore.getState().user?.id ?? '',
-    createdAt: t.createdAt,
-    updatedAt: t.updatedAt,
   }
 }
 
@@ -170,10 +142,12 @@ export const projectService = {
     return withErrorReport(async () => {
       const raw = await api.get<ApiProjectDetails>(`/projects/${id}/details`)
       const project = projectFromApi(raw)
+      const tasks = raw.tasks.map(taskFromApi)
       useProjectStore.getState().upsertProject(project)
+      useTaskStore.getState().upsertTasks(tasks)
       return {
         project,
-        tasks: raw.tasks.map(taskFromApi),
+        tasks,
         contacts: raw.contacts,
         funnel: raw.funnel,
       }

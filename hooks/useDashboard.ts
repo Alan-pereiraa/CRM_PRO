@@ -2,61 +2,67 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { dashboardService, taskService } from "@/services"
-import { useTaskStore, useAuthStore } from "@/stores"
-import type { DashboardOverview } from "@/types"
+import { useAuthStore } from "@/stores"
+import type { DashboardOverview, Task } from "@/types"
 
 export function useDashboard() {
   const [baseData, setBaseData] = useState<DashboardOverview | null>(null)
+  const [todayTasks, setTodayTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const user = useAuthStore((s) => s.user)
-  const tasks = useTaskStore((s) => s.tasks)
-
   const accountId = user?.id ?? ''
 
   useEffect(() => {
     if (!accountId) return
 
-    async function fetchOverview() {
+    let cancelled = false
+
+    async function fetchData() {
       try {
-        const overview = await dashboardService.getOverview(accountId)
+        const [overview, today] = await Promise.all([
+          dashboardService.getOverview(accountId),
+          taskService.getToday(),
+        ])
+        if (cancelled) return
         setBaseData(overview)
+        setTodayTasks(today)
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Erro ao carregar dados"
+        if (cancelled) return
+        const message = err instanceof Error ? err.message : "Erro ao carregar dados"
         setError(message)
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
-    fetchOverview()
-  }, [accountId])
+    fetchData()
 
-  const accountTasks = useMemo(
-    () => tasks.filter((t) => t.accountId === accountId),
-    [tasks, accountId],
-  )
+    return () => {
+      cancelled = true
+    }
+  }, [accountId])
 
   const data = useMemo<DashboardOverview | null>(() => {
     if (!baseData) return null
     return {
       ...baseData,
       todayTasks: {
-        tasks: accountTasks,
-        pendingCount: accountTasks.filter((t) => t.status !== 'completed').length,
+        tasks: todayTasks,
+        pendingCount: todayTasks.filter((t) => t.status !== 'completed').length,
       },
     }
-  }, [baseData, accountTasks])
+  }, [baseData, todayTasks])
 
   const toggleTask = useCallback(async (id: string) => {
-    const task = tasks.find((t) => t.id === id)
+    const task = todayTasks.find((t) => t.id === id)
     if (!task) return
 
     const newStatus = task.status === 'completed' ? 'pending' : 'completed'
-    await taskService.updateStatus(id, newStatus)
-  }, [tasks])
+    const updated = await taskService.updateStatus(id, newStatus)
+    setTodayTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
+  }, [todayTasks])
 
   return { data, loading, error, toggleTask }
 }

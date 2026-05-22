@@ -4,10 +4,11 @@ export type { TaskPriority } from './dashboard'
 
 export interface CreateTaskInput {
   title: string
-  description: string
+  description?: string
   status: TaskStatus
   priority: 'low' | 'medium' | 'high' | 'urgent'
-  dueDate: string
+  dueDate?: string
+  projectId: string
 }
 
 export interface UpdateTaskInput {
