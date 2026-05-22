@@ -7,7 +7,6 @@ import { useDeleteProject } from '@/hooks/useProjects'
 import { useUpdateTaskStatus } from '@/hooks/useTasks'
 import { useDeleteContact } from '@/hooks/useContacts'
 import { useTasksTable } from '@/hooks/useTasks'
-import { computeProjectStats } from '@/lib/stats/project'
 import { ProjectHeader } from '@/components/organisms/ProjectHeader'
 import { TaskFormDrawer } from '@/components/organisms/TaskFormDrawer'
 import { TasksTableFilter } from '@/components/molecules/TasksTableFilter'
@@ -16,6 +15,7 @@ import { TasksTablePagination } from '@/components/molecules/TasksTablePaginatio
 import { ContactsList } from '@/components/organisms/ContactsList'
 import { ContactFormDrawer } from '@/components/organisms/ContactFormDrawer'
 import type { Task, Contact } from '@/types'
+import { computeProjectStats } from '@/lib/utils'
 
 interface ProjectDetailContentProps {
   projectId: string
