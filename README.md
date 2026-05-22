@@ -35,16 +35,27 @@ Dar ao freelancer clareza sobre o funil comercial, execução dos projetos e flu
 npm install
 ```
 
-2. Rode em ambiente de desenvolvimento:
+2. Configure as variáveis de ambiente. Copie o exemplo e ajuste se necessário:
 
 ```bash
-npm run dev
+cp .env.local.example .env.local
 ```
 
-3. Abra no navegador:
+Variáveis suportadas:
+- `NEXT_PUBLIC_API_URL` — URL do backend `CRM_PRO_API` (default `http://localhost:3000`).
+
+3. Suba o backend em outra porta antes (ex.: `cd ../CRM_PRO_API && npm run start:dev`).
+
+4. Rode o frontend em ambiente de desenvolvimento (em porta diferente do backend):
+
+```bash
+PORT=3001 npm run dev
+```
+
+5. Abra no navegador:
 
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
 ### Comandos úteis

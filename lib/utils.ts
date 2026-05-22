@@ -20,14 +20,6 @@ export function formatDate(dateString: string): string {
   }).format(new Date(dateString))
 }
 
-export function generateId(prefix: string): string {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
-}
-
-export function delay(ms: number = 50): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 export function formatRelativeTime(dateString: string): string {
   const now = Date.now()
   const past = new Date(dateString).getTime()

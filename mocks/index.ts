@@ -1,8 +1,0 @@
-export { defaultFunnels } from './funnels'
-export type { FunnelSeed } from './funnels'
-export { defaultProjects } from './projects'
-export type { ProjectSeed } from './projects'
-export { defaultContacts } from './contacts'
-export type { ContactSeed } from './contacts'
-export { defaultTasks } from './tasks'
-export type { TaskSeed } from './tasks'
