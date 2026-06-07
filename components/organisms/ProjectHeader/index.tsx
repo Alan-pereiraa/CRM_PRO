@@ -51,15 +51,17 @@ export function ProjectHeader({ project, stats, onCreateTask, onDelete }: Projec
           </Button>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-[var(--button-default)] bg-[var(--button-default)] text-white hover:bg-[var(--button-default)]/90 hover:text-white"
-              >
-                <Ellipsis size={16} />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-[var(--button-default)] bg-[var(--button-default)] text-white hover:bg-[var(--button-default)]/90 hover:text-white"
+                >
+                  <Ellipsis size={16} />
+                </Button>
+              }
+            />
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={onDelete}

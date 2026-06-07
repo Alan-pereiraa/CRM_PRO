@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -39,6 +39,9 @@ export function Header() {
   const pathname = usePathname()
   const { user } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
@@ -96,6 +99,7 @@ export function Header() {
       </header>
 
       <header className="flex h-14 items-center justify-between border-b bg-white dark:bg-card px-4 lg:hidden">
+        {mounted ? (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetTrigger className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[#F1F5F9] dark:hover:bg-accent hover:text-[var(--text-primary)]">
             <Menu size={20} />
@@ -136,6 +140,9 @@ export function Header() {
             </div>
           </SheetContent>
         </Sheet>
+        ) : (
+          <div className="h-9 w-9" aria-hidden />
+        )}
 
         <Logo />
 
